@@ -16,50 +16,53 @@
             <div class="box">
                 <p class="subtitle is-5 has-text-weight-semibold has-text-centered">Create new account</p>
 
-                <div class="field" id="username-field">
-                    <label class="label">Username</label>
-                    <div class="control has-icons-left">
-                        <input class="input" type="text" placeholder="Username">
-                        <span class="icon is-small is-left">
+                <form id="signup-form" method="post" onsubmit="return false">
+                    <div class="field" id="username-field">
+                        <label class="label">Username</label>
+                        <div class="control has-icons-left">
+                            <input class="input" type="text" placeholder="Username">
+                            <span class="icon is-small is-left">
                             <i class="fas fa-user"></i>
                         </span>
+                        </div>
                     </div>
-                </div>
 
-                <div class="field" id="password-field">
-                    <label class="label">Password</label>
-                    <div class="control has-icons-left">
-                        <input class="input" type="password" placeholder="Enter your password">
-                        <span class="icon is-small is-left">
+                    <div class="field" id="password1-field">
+                        <label class="label">Password</label>
+                        <div class="control has-icons-left">
+                            <input class="input" type="password" placeholder="Enter your password">
+                            <span class="icon is-small is-left">
                             <i class="fas fa-key"></i>
                         </span>
+                        </div>
                     </div>
-                </div>
 
-                <div class="field" id="password2-field">
-                    <label class="label">Password confirmation</label>
-                    <div class="control has-icons-left">
-                        <input class="input" type="password" placeholder="Re-enter your password">
-                        <span class="icon is-small is-left">
+                    <div class="field" id="password2-field">
+                        <label class="label">Password confirmation</label>
+                        <div class="control has-icons-left">
+                            <input class="input" type="password" placeholder="Re-enter your password">
+                            <span class="icon is-small is-left">
                             <i class="fas fa-key"></i>
                         </span>
+                        </div>
                     </div>
-                </div>
 
-                <div class="field" id="secretPhrase-field">
-                    <label class="label">
-                        Secret phrase
-                        <span class="is-size-7 has-text-weight-light">(One word, case insensetive)</span>
-                    </label>
-                    <div class="control has-icons-left">
-                        <input class="input" type="password" placeholder="Secret">
-                        <span class="icon is-small is-left">
+                    <div class="field" id="secretPhrase-field">
+                        <label class="label">
+                            Secret phrase
+                            <span class="is-size-7 has-text-weight-light">(One word, case insensetive)</span>
+                        </label>
+                        <div class="control has-icons-left">
+                            <input class="input" type="password" placeholder="Secret">
+                            <span class="icon is-small is-left">
                             <i class="fas fa-user-secret"></i>
                         </span>
+                        </div>
                     </div>
-                </div>
 
-                <button class="button mt-5 is-outlined is-medium is-fullwidth is-primary">Get Started</button>
+                    <button class="button mt-5 is-outlined is-medium is-fullwidth is-primary" id="submit-button" type="submit">Get Started</button>
+                </form>
+
                 <div class="mt-3 has-text-centered">
                     <span class="is-size-6">Already have an account? <a>Sign in</a></span>
                 </div>
@@ -67,5 +70,40 @@
         </div>
     </div>
 </section>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#signup-form").on("submit", submit);
+    });
+
+    function submit() {
+        const username = $("#username-field .input").val();
+        const password1 = $("#password1-field .input").val().trim();
+        const password2 = $("#password2-field .input").val().trim();
+        const secretPhrase = $("#secretPhrase-field .input").val().trim();
+
+        const request = {
+            username: username,
+            password1: password1,
+            password2: password2,
+            secretPhrase: secretPhrase
+        }
+
+        $.post({
+            data: request,
+            url: "/api/auth/signup",
+            dataType: "json",
+            success: function(data) {
+                console.log(data);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.log(textStatus);
+            },
+            complete: function(jqXHR, textStatus) {
+                console.log("Complete");
+            }
+        })
+    }
+</script>
 </body>
 </html>
