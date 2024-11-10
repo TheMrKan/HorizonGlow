@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os.path
+from datetime import timedelta
 from pathlib import Path
 import environ
 
@@ -134,7 +135,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'knox.auth.TokenAuthentication',
+        'users.auth.CookieTokenAuthentication',
     ],
     'DEFAULT_RENDERER_CLASSES': (
         'djangorestframework_camel_case.render.CamelCaseJSONRenderer',
@@ -147,10 +148,19 @@ REST_FRAMEWORK = {
     ),
 }
 
+# некоторые опции из https://github.com/jazzband/django-rest-knox/pull/277
+REST_KNOX = {
+    'TOKEN_TTL': timedelta(days=3),
+    'ENABLE_COOKIE_AUTH': True,
+    'AUTH_COOKIE_SALT': "knoxSalt",
+    'AUTH_COOKIE_KEY': 'AuthToken',
+}
+
 AUTH_USER_MODEL = "users.User"
 
 AUTHENTICATION_BACKENDS = [
     'users.backends.SecretPhraseAuthBackend',
 ]
+
 
 

@@ -119,6 +119,7 @@
         setFieldError($("#username-field"));
         setPasswordsDontMatch(false);
         setFieldError($("#secretPhrase-field"));
+        setError();
 
         if (username === null || username.trim() === "") {
             setFieldError($("#username-field"), "Username is required");

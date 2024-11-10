@@ -5,10 +5,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import AuthTokenSerializer, UserCredentialsSerializer
 from .models import User
+from .auth import CookieTokenAuthentication
 from knox.views import LoginView as KnoxLoginView
+from rest_framework.settings import api_settings
 
 
-class LoginView(KnoxLoginView):
+# часть кода из https://github.com/jazzband/django-rest-knox/pull/277
+class LoginView(APIView):
+    authentication_classes = api_settings.DEFAULT_AUTHENTICATION_CLASSES
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request, format=None):
@@ -16,15 +20,22 @@ class LoginView(KnoxLoginView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         login(request, user)
-        return super(LoginView, self).post(request, format=None)
+        response = Response(data={}, status=status.HTTP_200_OK)
+        CookieTokenAuthentication.set_authentication_cookie(response, user)
+        return response
 
 
-class RegisterView(APIView):
+class RegisterView(KnoxLoginView):
+    authentication_classes = api_settings.DEFAULT_AUTHENTICATION_CLASSES
     permission_classes = (permissions.AllowAny,)
 
-    def post(self, request):
+    def post(self, request, format=None):
         serializer = UserCredentialsSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        user = serializer.save()
+
+        response = Response(data={}, status=status.HTTP_200_OK)
+        CookieTokenAuthentication.set_authentication_cookie(response, user)
+        return response
+
 
