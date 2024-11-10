@@ -22,29 +22,38 @@
                         <div class="control has-icons-left">
                             <input class="input" type="text" placeholder="Username">
                             <span class="icon is-small is-left">
-                            <i class="fas fa-user"></i>
-                        </span>
+                                <i class="fas fa-user"></i>
+                            </span>
                         </div>
+                        <p class="help is-danger"></p>
                     </div>
 
                     <div class="field" id="password1-field">
                         <label class="label">Password</label>
-                        <div class="control has-icons-left">
+                        <div class="control has-icons-left has-icons-right">
                             <input class="input" type="password" placeholder="Enter your password">
                             <span class="icon is-small is-left">
-                            <i class="fas fa-key"></i>
-                        </span>
+                                <i class="fas fa-key"></i>
+                            </span>
+                            <span class="icon is-small is-right">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </span>
                         </div>
+                        <p class="help is-danger"></p>
                     </div>
 
                     <div class="field" id="password2-field">
                         <label class="label">Password confirmation</label>
-                        <div class="control has-icons-left">
+                        <div class="control has-icons-left has-icons-right">
                             <input class="input" type="password" placeholder="Re-enter your password">
                             <span class="icon is-small is-left">
-                            <i class="fas fa-key"></i>
-                        </span>
+                                <i class="fas fa-key"></i>
+                            </span>
+                            <span class="icon is-small is-right">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </span>
                         </div>
+                        <p class="help is-danger"></p>
                     </div>
 
                     <div class="field" id="secretPhrase-field">
@@ -55,12 +64,15 @@
                         <div class="control has-icons-left">
                             <input class="input" type="password" placeholder="Secret">
                             <span class="icon is-small is-left">
-                            <i class="fas fa-user-secret"></i>
-                        </span>
+                                <i class="fas fa-user-secret"></i>
+                            </span>
                         </div>
+                        <p class="help is-danger"></p>
                     </div>
 
-                    <button class="button mt-5 is-outlined is-medium is-fullwidth is-primary" id="submit-button" type="submit">Get Started</button>
+                    <p class="has-text-danger has-text-centered" id="error"></p>
+
+                    <button class="button mt-5 is-outlined is-medium is-fullwidth is-primary" id="submit-button">Get Started</button>
                 </form>
 
                 <div class="mt-3 has-text-centered">
@@ -73,8 +85,30 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-        $("#signup-form").on("submit", submit);
+        $("#submit-button").click(submit);
+
+        setPasswordsDontMatch(false);
+        setError();
     });
+
+    function setError(text=null) {
+        const elem = $("#error");
+        elem.toggle(text !== "" && text !== null);
+        elem.text(text)
+    }
+
+    function setFieldError(field, text=null) {
+        const active = text !== "" && text !== null;
+        field.find("input").toggleClass("is-danger", active);
+        field.find(".is-right").toggle(active);
+        field.find(".help").text(text);
+    }
+
+    function setPasswordsDontMatch(active) {
+        const text = active ? "Passwords don't match" : "";
+        setFieldError($("#password1-field"), text);
+        setFieldError($("#password2-field"), text);
+    }
 
     function submit() {
         const username = $("#username-field .input").val();
@@ -82,25 +116,66 @@
         const password2 = $("#password2-field .input").val().trim();
         const secretPhrase = $("#secretPhrase-field .input").val().trim();
 
+        setFieldError($("#username-field"));
+        setPasswordsDontMatch(false);
+        setFieldError($("#secretPhrase-field"));
+
+        if (username === null || username.trim() === "") {
+            setFieldError($("#username-field"), "Username is required");
+            return;
+        }
+
+        if (password1 === null || password1.trim() === "") {
+            setFieldError($("#password1-field"), "Password is required");
+            return;
+        }
+
+        if (password1 !== password2) {
+            setPasswordsDontMatch(true);
+            return;
+        }
+
+        if (secretPhrase === null || secretPhrase.trim() === "") {
+            setFieldError($("#secretPhrase-field"), "Secret phrase is required");
+            return;
+        }
+
         const request = {
             username: username,
-            password1: password1,
-            password2: password2,
+            password: password1,
             secretPhrase: secretPhrase
         }
 
+        $("#submit-button").addClass("is-loading");
+
         $.post({
             data: request,
-            url: "/api/auth/signup",
+            url: "/api/auth/register/",
             dataType: "json",
             success: function(data) {
                 console.log(data);
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                console.log(textStatus);
+                try {
+                    let errors = JSON.parse(jqXHR.responseText);
+                    if ("username" in errors) {
+                        setFieldError($("#username-field"), errors["username"]);
+                    }
+                    if ("password" in errors) {
+                        setFieldError($("#password1-field"), errors["password"]);
+                    }
+                    if ("secretPhrase" in errors) {
+                        setFieldError($("#secretPhrase-field"), errors["secretPhrase"]);
+                    }
+                }
+                catch (e) {
+                    console.error("Failed to parse JSON error: " + e);
+                    console.error("Response: " + jqXHR.responseText);
+                    setError("An internal error occured during the request. Please, try again.")
+                }
             },
             complete: function(jqXHR, textStatus) {
-                console.log("Complete");
+                $("#submit-button").removeClass("is-loading");
             }
         })
     }
