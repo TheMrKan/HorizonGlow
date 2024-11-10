@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
+from django.contrib.auth.password_validation import validate_password
 
 from users.services import UserCreator
 
@@ -52,13 +53,14 @@ class AuthTokenSerializer(serializers.Serializer):
 class UserCredentialsSerializer(serializers.Serializer):
     username = serializers.CharField(
         label="Username",
-        write_only=True
+        write_only=True,
     )
     password = serializers.CharField(
         label="Password",
         style={'input_type': 'password'},
         trim_whitespace=False,
-        write_only=True
+        write_only=True,
+        validators=[validate_password]
     )
     secret_phrase = serializers.CharField(
         label="Secret Phrase",
@@ -71,8 +73,20 @@ class UserCredentialsSerializer(serializers.Serializer):
     )
 
     def validate_username(self, value):
+        if len(value) < 4:
+            raise serializers.ValidationError("Username must be at least 4 characters long")
+
         if UserCreator(value, "", "").is_user_exists():
             raise serializers.ValidationError(f"User with this name already exists")
+        return value
+
+    def validate_secret_phrase(self, value: str):
+        if len(value) < 3 or len(value) > 15:
+            raise serializers.ValidationError("Secret phrase must be at least 3 characters long and less than 15 characters")
+
+        if not value.isalpha():
+            raise serializers.ValidationError("Secret phrase must contain only alphabetic characters")
+        return value
 
     def create(self, validated_data):
         try:
