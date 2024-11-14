@@ -3,7 +3,7 @@ from django.utils import timezone
 from rest_framework.exceptions import AuthenticationFailed
 from knox.models import get_token_model
 from django.contrib.auth.signals import user_logged_in
-from WebStore.settings import REST_KNOX as custom_knox_settings
+from HorizonGlow.settings import REST_KNOX as custom_knox_settings
 from knox.settings import knox_settings
 
 
