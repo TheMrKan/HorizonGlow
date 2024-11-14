@@ -1,4 +1,5 @@
-from rest_framework import serializers
+from rest_framework import serializers, status
+from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 
@@ -40,11 +41,10 @@ class AuthTokenSerializer(serializers.Serializer):
                                 secret_phrase=secret_phrase)
 
             if not user:
-                msg = "Invalid credentials"
-                raise serializers.ValidationError(msg, code='authorization')
+                raise AuthenticationFailed()
         else:
             return serializers.ValidationError("Must include 'username', 'password' and 'secret_phrase'",
-                                               code='authorization')
+                                               code=status.HTTP_400_BAD_REQUEST)
 
         attrs['user'] = user
         return attrs
