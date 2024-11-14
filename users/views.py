@@ -12,7 +12,7 @@ from rest_framework.settings import api_settings
 
 # часть кода из https://github.com/jazzband/django-rest-knox/pull/277
 class LoginView(APIView):
-    authentication_classes = api_settings.DEFAULT_AUTHENTICATION_CLASSES
+    authentication_classes = ()
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request, format=None):
@@ -26,7 +26,7 @@ class LoginView(APIView):
 
 
 class RegisterView(KnoxLoginView):
-    authentication_classes = api_settings.DEFAULT_AUTHENTICATION_CLASSES
+    authentication_classes = ()
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request, format=None):

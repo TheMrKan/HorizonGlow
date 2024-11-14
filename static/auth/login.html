@@ -6,21 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/static/styles/style.css">
     <script type="text/javascript" src="/static/js/jquery-3.7.1.min.js"></script>
-    <title>Horizon Glow: Sign up</title>
+    <title>Horizon Glow: Login</title>
 </head>
 <body>
+<iframe src="/static/blank.html" id="loginTarget" name="loginTarget" style="display:none">
+</iframe>
 <section class="section container">
     <p class="title is-3 has-text-centered">HORIZON GLOW</p>
     <div class="columns is-centered">
         <div class="column is-4">
             <div class="box">
-                <p class="subtitle is-4 has-text-weight-semibold has-text-centered">Create new account</p>
+                <p class="subtitle is-4 has-text-weight-semibold has-text-centered">Welcome back</p>
 
-                <form id="signup-form" method="post" onsubmit="return false">
+                <form id="login-form" method="post" action="/api/return/200/" target="loginTarget">
                     <div class="field" id="username-field">
                         <label class="label">Username</label>
                         <div class="control has-icons-left">
-                            <input class="input" type="text" placeholder="Username">
+                            <input class="input" type="text" name="username" placeholder="Username" autocomplete="username">
                             <span class="icon is-small is-left">
                                 <i class="fas fa-user"></i>
                             </span>
@@ -28,10 +30,10 @@
                         <p class="help is-danger"></p>
                     </div>
 
-                    <div class="field" id="password1-field">
+                    <div class="field" id="password-field">
                         <label class="label">Password</label>
                         <div class="control has-icons-left has-icons-right">
-                            <input class="input" type="password" placeholder="Enter your password">
+                            <input class="input" type="password" name="password" placeholder="Enter your password" autocomplete="current-password">
                             <span class="icon is-small is-left">
                                 <i class="fas fa-key"></i>
                             </span>
@@ -41,28 +43,16 @@
                         </div>
                         <p class="help is-danger"></p>
                     </div>
+                </form>
 
-                    <div class="field" id="password2-field">
-                        <label class="label">Password confirmation</label>
-                        <div class="control has-icons-left has-icons-right">
-                            <input class="input" type="password" placeholder="Re-enter your password">
-                            <span class="icon is-small is-left">
-                                <i class="fas fa-key"></i>
-                            </span>
-                            <span class="icon is-small is-right">
-                                <i class="fas fa-exclamation-triangle"></i>
-                            </span>
-                        </div>
-                        <p class="help is-danger"></p>
-                    </div>
-
+                <form id="secretPhrase-form" method="post" action="/api/return/200/" target="loginTarget" class="mt-3">
                     <div class="field" id="secretPhrase-field">
                         <label class="label">
                             Secret phrase
                             <span class="is-size-7 has-text-weight-light">(One word, case insensetive)</span>
                         </label>
                         <div class="control has-icons-left">
-                            <input class="input" type="password" placeholder="Secret">
+                            <input class="input" type="password" name="secretPhrase" placeholder="Secret">
                             <span class="icon is-small is-left">
                                 <i class="fas fa-user-secret"></i>
                             </span>
@@ -70,13 +60,13 @@
                         <p class="help is-danger"></p>
                     </div>
 
-                    <p class="has-text-danger has-text-centered" id="error"></p>
-
-                    <button class="button mt-5 is-outlined is-medium is-fullwidth is-primary" id="submit-button">Get Started</button>
                 </form>
 
+                <p class="has-text-danger has-text-centered" id="error"></p>
+                <button class="button mt-5 is-outlined is-medium is-fullwidth is-primary" form="login-form" id="submit-button" type="submit">Login</button>
+
                 <div class="mt-3 has-text-centered">
-                    <span class="is-size-6">Already have an account? <a>Sign in</a></span>
+                    <span class="is-size-6">Don't have an account? <a href="/auth/signup">Sign up</a></span>
                 </div>
             </div>
         </div>
@@ -85,10 +75,10 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-        $("#submit-button").click(submit);
+        $("#login-form").submit(submit);
 
-        setPasswordsDontMatch(false);
         setError();
+        setFieldError($("#password-field"));
     });
 
     function setError(text=null) {
@@ -104,20 +94,13 @@
         field.find(".help").text(text);
     }
 
-    function setPasswordsDontMatch(active) {
-        const text = active ? "Passwords don't match" : "";
-        setFieldError($("#password1-field"), text);
-        setFieldError($("#password2-field"), text);
-    }
-
-    function submit() {
+    function submit(e) {
         const username = $("#username-field .input").val();
-        const password1 = $("#password1-field .input").val().trim();
-        const password2 = $("#password2-field .input").val().trim();
+        const password = $("#password-field .input").val().trim();
         const secretPhrase = $("#secretPhrase-field .input").val().trim();
 
         setFieldError($("#username-field"));
-        setPasswordsDontMatch(false);
+        setFieldError($("#password-field"));
         setFieldError($("#secretPhrase-field"));
         setError();
 
@@ -126,13 +109,8 @@
             return;
         }
 
-        if (password1 === null || password1.trim() === "") {
-            setFieldError($("#password1-field"), "Password is required");
-            return;
-        }
-
-        if (password1 !== password2) {
-            setPasswordsDontMatch(true);
+        if (password === null || password.trim() === "") {
+            setFieldError($("#password-field"), "Password is required");
             return;
         }
 
@@ -143,7 +121,7 @@
 
         const request = {
             username: username,
-            password: password1,
+            password: password,
             secretPhrase: secretPhrase
         }
 
@@ -151,32 +129,39 @@
 
         $.post({
             data: request,
-            url: "/api/auth/register/",
+            url: "/api/auth/login/",
             dataType: "json",
             success: function(data) {
-                console.log(data);
+                window.location.href = "/";
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                if (jqXHR.status != 400) {
-                    console.error("Response: " + jqXHR.responseText);
-                    setError("An internal error occured during the request. Please, try again.");
-                    return;
+                if (jqXHR.status == 401) {
+                    setError("Incorrect username, password or secret phrase");
                 }
-
-                try {
-                    let errors = JSON.parse(jqXHR.responseText);
-                    if ("username" in errors) {
-                        setFieldError($("#username-field"), errors["username"]);
+                else if (jqXHR.status == 400) {
+                    try {
+                        let errors = JSON.parse(jqXHR.responseText);
+                        if ("detail" in errors) {
+                            setError(errors["detail"])
+                            return;
+                        }
+                        if ("username" in errors) {
+                            setFieldError($("#username-field"), errors["username"]);
+                        }
+                        if ("password" in errors) {
+                            setFieldError($("#password1-field"), errors["password"]);
+                        }
+                        if ("secretPhrase" in errors) {
+                            setFieldError($("#secretPhrase-field"), errors["secretPhrase"]);
+                        }
                     }
-                    if ("password" in errors) {
-                        setFieldError($("#password1-field"), errors["password"]);
-                    }
-                    if ("secretPhrase" in errors) {
-                        setFieldError($("#secretPhrase-field"), errors["secretPhrase"]);
+                    catch (e) {
+                        console.error("Failed to parse JSON error: " + e);
+                        console.error("Response: " + jqXHR.responseText);
+                        setError("An internal error occured during the request. Please, try again.")
                     }
                 }
-                catch (e) {
-                    console.error("Failed to parse JSON error: " + e);
+                else {
                     console.error("Response: " + jqXHR.responseText);
                     setError("An internal error occured during the request. Please, try again.")
                 }
