@@ -5,7 +5,9 @@ from django.conf import settings
 class StaticMiddleware(WhiteNoiseMiddleware):
     def __call__(self, request):
         path = request.path_info
-        if not path.startswith(settings.STATIC_URL):
+        if request.path_info == "/":
+            path = settings.STATIC_URL + "index.html"
+        elif not path.startswith(settings.STATIC_URL):
             path = settings.STATIC_URL + path.strip("/") + ".html"
 
         if self.autorefresh:

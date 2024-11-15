@@ -1,2 +1,8 @@
 @import "https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css";
-@import "https://use.fontawesome.com/releases/v5.0.7/css/all.css";
+@import "https://use.fontawesome.com/releases/v6.6.0/css/all.css";
+
+@media screen and (max-width: 768px) {
+    .desktop-box {
+      all: unset;
+    }
+  }
