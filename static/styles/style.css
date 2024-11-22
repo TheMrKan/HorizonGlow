@@ -1,8 +1,58 @@
 @import "https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css";
 @import "https://use.fontawesome.com/releases/v6.6.0/css/all.css";
 
+body {
+    background-image: url("/static/img/bg.png");
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    min-height: 100vh;
+}
+
+:root {
+    --bulma-primary-rgb: rgba(214, 105, 0);
+    --bulma-primary-h: 29deg;
+    --bulma-primary-s: 100%;
+    --bulma-primary-l: 42%;
+}
+
+.mt-7 {
+    margin-top: 4.5rem;
+}
+
+.mt-8 {
+    margin-top: 6rem;
+}
+
+.mt-9 {
+    margin-top: 7.5rem;
+}
+
+.box {
+    --bulma-box-background-color: hsla(from var(--bulma-scheme-main) h s l / 0.8);
+/*    backdrop-filter: blur(4px);*/
+}
+
+.input {
+    background-color: hsla(var(--bulma-input-h),var(--bulma-input-s),calc(var(--bulma-input-background-l) + var(--bulma-input-background-l-delta)), 0.2);
+/*    backdrop-filter: blur(2px);*/
+}
+
 @media screen and (max-width: 768px) {
-    .desktop-box {
+    .only-desktop {
       all: unset;
     }
+
+    .header-centered {
+        margin-bottom: 0.5rem;
+    }
   }
+
+@media screen and (min-width: 768px) {
+    .header-centered {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
