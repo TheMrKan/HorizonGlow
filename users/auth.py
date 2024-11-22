@@ -5,6 +5,7 @@ from knox.models import get_token_model
 from django.contrib.auth.signals import user_logged_in
 from HorizonGlow.settings import REST_KNOX as custom_knox_settings
 from knox.settings import knox_settings
+from django.http import HttpResponse
 
 
 class CookieTokenAuthentication(TokenAuthentication):
@@ -46,8 +47,12 @@ class CookieTokenAuthentication(TokenAuthentication):
         )
 
     @classmethod
-    def set_authentication_cookie(cls, response, user):
+    def set_authentication_cookie(cls, response: HttpResponse, user):
         instance, token = cls.create_token(user)
         response.set_signed_cookie(cls.get_cookie_key(), token, httponly=True, salt=cls.get_cookie_salt(), max_age=knox_settings.TOKEN_TTL)
+
+    @classmethod
+    def remove_authentication_cookie(cls, response: HttpResponse):
+        response.delete_cookie(cls.get_cookie_key())
 
 

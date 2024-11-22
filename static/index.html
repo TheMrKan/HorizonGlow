@@ -6,9 +6,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/static/styles/style.css">
     <script type="text/javascript" src="/static/js/jquery-3.7.1.min.js"></script>
+    <script type="text/javascript" src="/static/js/app.js"></script>
     <title>Horizon Glow: Home</title>
 </head>
 <body>
+<script>
+    $(document).ready(function() {
+        loadProfile();
+    });
+
+    function loadProfile() {
+        $.get({
+            url: "/api/account/",
+            dataType: "json",
+            success: function(data) {
+                const username = $("#username");
+                username.text(data.username);
+                username.removeClass("is-skeleton");
+
+                const balance = $("#balance");
+                balance.text("$" + Number(data.balance).toFixed(2));
+                balance.removeClass("is-skeleton");
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                tryHandleAuthError(jqXHR);
+
+                showError(jqXHR);
+            }
+        })
+    }
+
+    function logout() {
+        $.post({
+            url: "/api/auth/logout/",
+            success: function(data) {
+                window.location.href = "/auth/login/";
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                showError(jqXHR);
+            }
+        })
+    }
+</script>
 <section class="section container pt-4">
     <div class="columns is-centered">
         <div class="column is-12">
@@ -35,14 +74,14 @@
                     </div>
                     <div class="level-right">
                         <div class="level-item">
-                            <span class="has-text-weight-bold mr-1">$38,70</span>
+                            <span class="has-text-weight-bold mr-1 is-skeleton" id="balance">$38,70</span>
                             <span class="icon mr-3">
                                 <i class="fas fa-wallet" aria-hidden="true"></i>
                             </span>
                             <div class="dropdown is-hoverable is-right">
                                 <div class="dropdown-trigger">
                                     <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
-                                        <span class="mr-2">username</span>
+                                        <span class="mr-2 is-skeleton" id="username">username</span>
                                         <span class="icon is-small">
                                         <i class="fas fa-user" aria-hidden="true"></i>
                                     </span>
@@ -50,12 +89,12 @@
                                 </div>
                                 <div class="dropdown-menu" id="dropdown-menu" role="menu">
                                     <div class="dropdown-content pl-2">
-                                        <a href="#" class="dropdown-item"><span class="icon"><i class="fas fa-basket-shopping mr-2" aria-hidden="true"></i></span> My purchases</a>
+                                        <a href="#" class="dropdown-item"><span class="icon"><i class="fas fa-basket-shopping mr-2" aria-hidden="true"></i></span> My purchases </a>
                                         <a class="dropdown-item"><span class="icon"><i class="fas fa-user-pen mr-2" aria-hidden="true"></i></span> Edit profile </a>
                                         <a href="#" class="dropdown-item"><span class="icon"><i class="fa-brands fa-bitcoin mr-2" aria-hidden="true"></i></span> Topup balance </a>
                                         <a href="#" class="dropdown-item"><span class="icon"><i class="fas fa-comments mr-2" aria-hidden="true"></i></span> Support </a>
                                         <hr class="dropdown-divider" />
-                                        <a href="#" class="dropdown-item"><span class="icon"><i class="fas fa-right-from-bracket" aria-hidden="true"></i></span> Logout </a>
+                                        <a href="#" onclick="logout()" class="dropdown-item"><span class="icon"><i class="fas fa-right-from-bracket" aria-hidden="true"></i></span> Logout </a>
                                     </div>
                                 </div>
                             </div>

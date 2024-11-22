@@ -2,6 +2,7 @@ from rest_framework import serializers, status
 from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
+from .models import User
 
 from users.services import UserCreator
 
@@ -94,6 +95,12 @@ class UserCredentialsSerializer(serializers.Serializer):
             return user
         except ValueError as e:
             raise serializers.ValidationError(str(e), code="authorization")
+
+
+class AccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'balance')
 
 
 
