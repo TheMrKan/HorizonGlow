@@ -46,7 +46,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     "whitenoise.runserver_nostatic",
     'django.contrib.staticfiles',
+    'django_filters',
     'users',
+    'products'
 ]
 
 MIDDLEWARE = [
@@ -149,6 +151,7 @@ REST_FRAMEWORK = {
         'djangorestframework_camel_case.parser.CamelCaseMultiPartParser',
         'djangorestframework_camel_case.parser.CamelCaseJSONParser',
     ),
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
 
 # некоторые опции из https://github.com/jazzband/django-rest-knox/pull/277
