@@ -11,10 +11,20 @@ class Category(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50)
 
+    objects = models.Manager()
     has_available_products = HasAvailableProductsManager()
+
+    class Meta:
+        verbose_name_plural = "categories"
 
     def get_products_count(self):
         return self.products.filter(purchased_by__isnull=True).distinct().count()
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.__str__()
 
 
 class AvailableManager(models.Manager):
@@ -32,7 +42,14 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     produced_at = models.DateTimeField()
     added_at = models.DateTimeField(auto_now_add=True)
-    purchased_at = models.DateTimeField(null=True)
-    purchased_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='purchased_products')
+    purchased_at = models.DateTimeField(null=True, default=None, blank=True)
+    purchased_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, default=None, blank=True, related_name='purchased_products')
 
+    objects = models.Manager()
     available = AvailableManager()
+
+    def __str__(self):
+        return self.description
+
+    def __repr__(self):
+        return self.__str__()
