@@ -13,6 +13,9 @@ class Category(models.Model):
 
     has_available_products = HasAvailableProductsManager()
 
+    def get_products_count(self):
+        return self.products.filter(purchased_by__isnull=True).distinct().count()
+
 
 class AvailableManager(models.Manager):
     def get_queryset(self):

@@ -39,6 +39,11 @@ body {
 /*    backdrop-filter: blur(2px);*/
 }
 
+.table {
+    --bulma-table-background-color: rgba(0, 0, 0, 0);
+    --bulma-table-cell-background-color: rgba(0, 0, 0, 0);
+}
+
 @media screen and (max-width: 768px) {
     .only-desktop {
       all: unset;
@@ -56,3 +61,4 @@ body {
         transform: translateX(-50%);
     }
 }
+
