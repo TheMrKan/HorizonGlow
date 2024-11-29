@@ -2,14 +2,16 @@ version: '3.8'
 
 services:
   django:
-    build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    command: gunicorn HorizonGlow.wsgi:application --bind 0.0.0.0:80 --access-logfile - --error-logfile - --log-level info
     volumes:
       - .:/usr/src/app/
     ports:
-      - "8000:8000"
+      - "80:80"
     env_file:
-      - ./.env
+      - ./.env.prod
     depends_on:
       - postgres
 
@@ -19,8 +21,8 @@ services:
       - "54432:5432"
     expose:
       - 5432
-    environment:
-      - POSTGRES_HOST_AUTH_METHOD=trust
+    env_file:
+      - ./.env.prod
     volumes:
       - pg_data:/var/lib/postgresql/data/
 

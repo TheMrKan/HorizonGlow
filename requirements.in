@@ -6,3 +6,4 @@ django-rest-knox
 djangorestframework-camel-case
 whitenoise
 django-filter
+gunicorn
