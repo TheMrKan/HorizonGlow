@@ -198,3 +198,9 @@ logging.config.dictConfig({
 
 
 
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+WHITENOISE_MAX_AGE = 86400
