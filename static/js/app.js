@@ -5,5 +5,49 @@ function tryHandleAuthError(jqXHR) {
 }
 
 function showError(jqXHR) {
+    let text = "An internal error occured during the operation. Please, try again."
+    try {
+        let errors = JSON.parse(jqXHR.responseText);
+        console.error(errors);
+        text = Object.values(errors)[0];
+    }
+    catch (e) {
+        console.error("Failed to parse JSON error: " + e);
+        console.error("Response: " + jqXHR.responseText);
+    }
+    notify(text, "error", 3000);
+}
 
+$(function() {
+    $('body').append("<div class='notifications'></div>");
+});
+
+function notify(msg, mode, duration) {
+    const classy = "notification";
+    $(`#${classy}`).remove();
+    $('.notifications').append(`
+        <div id='${classy}' class='notification is-${mode} slideInRight'>
+            <span class="icon">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </span>
+            ${msg}
+        </div>
+    `);
+    const elem = $(`#${classy}`);
+
+    elem.click(function() {
+        $(this).removeClass('slideInRight');
+        $(this).addClass('slideOutRight');
+        setTimeout(function() {
+            $(this).remove();
+        }, 350);
+    });
+
+    setTimeout(function() {
+        elem.removeClass('slideInRight');
+        elem.addClass('slideOutRight');
+        setTimeout(function() {
+            elem.remove();
+        }, 350);
+    }, duration);
 }

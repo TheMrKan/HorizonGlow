@@ -4,8 +4,8 @@ from .models import User
 
 
 class CustomUserAdmin(UserAdmin):
-    # добавляем секретную фразу в самую верхнюю категорию
-    UserAdmin.fieldsets[0][1]["fields"] = (*UserAdmin.fieldsets[0][1]["fields"], "secret_phrase")
+    # РґРѕР±Р°РІР»СЏРµРј СЃРµРєСЂРµС‚РЅСѓСЋ С„СЂР°Р·Сѓ Рё Р±Р°Р»Р°РЅСЃ РІ Р°РґРјРёРЅ-РїР°РЅРµР»СЊ
+    UserAdmin.fieldsets[0][1]["fields"] = (*UserAdmin.fieldsets[0][1]["fields"], "secret_phrase", "balance")
     add_fieldsets = UserAdmin.add_fieldsets + ((None, {"fields": ["secret_phrase"]}),)
 
 admin.site.register(User, CustomUserAdmin)

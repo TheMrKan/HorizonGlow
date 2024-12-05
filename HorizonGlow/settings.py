@@ -90,8 +90,21 @@ WSGI_APPLICATION = 'HorizonGlow.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': env.db()
+    "default": env.db(),
 }
+
+
+# добавляем возможность делать транзакции с уровнем изоляции Serializeable
+try:
+    # импорт в try-catch для совместимости с другими БД
+    from django.db.backends.postgresql.psycopg_any import IsolationLevel
+
+    __serializeable_db = DATABASES["default"]
+    __serializeable_db.setdefault("OPTIONS", {})
+    __serializeable_db["OPTIONS"]["isolation_level"] = IsolationLevel.SERIALIZABLE
+    DATABASES["serializeable"] = __serializeable_db
+except ImportError:
+    logging.error("Failed to setup Serializeable isolation level: IsolationLevel import failed")
 
 
 # Password validation

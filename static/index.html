@@ -91,7 +91,7 @@
         function loadCategory(id, name) {
             const element = getOrCreateCategoryElement(id);    // должно создаваться синхронно, чтобы сохранялся порядок
             $.get({
-                url: `/api/products?category=${id}`,
+                url: `/api/products/?category=${id}`,
                 dataType: "json",
                 success: function(data) {
 
@@ -159,11 +159,28 @@
             const date = new Date(product["producedAt"]);
             const dateString = ('0' + (date.getMonth() + 1)).slice(-2) + '/' + ('0' + date.getDate()).slice(-2);
             productElement.find(".productProducedAt").removeClass("is-skeleton").addClass("has-text-white-ter").text(dateString);
-            productElement.find(".productButButton").removeClass("is-skeleton").text(`Buy ${+Number(product.price).toFixed(2)}$`);
+            productElement.find(".productButButton").removeClass("is-skeleton").text(`Buy ${+Number(product.price).toFixed(2)}$`).click(() => buyProduct(product.id));
 
             productsBag.append(productElement);
         }
+
+        function buyProduct(productId) {
+            $.post({
+                url: `/api/products/${productId}/buy/`,
+                dataType: "json",
+                success: function (data) {
+                    window.location.reload();
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    tryHandleAuthError(jqXHR);
+
+                    showError(jqXHR);
+                }
+            });
+        }
+
 </script>
+
 <section class="section container pt-4">
     <div class="columns is-centered">
         <div class="column is-12">
@@ -219,72 +236,75 @@
                 </div>
             </div>
 
-            <div class="level is-mobile">
-                <div class="level-left">
-                    <div class="level-item">
-                        <div class="control has-icons-left">
-                            <div class="select is-rounded">
-                                <select id="categoriesSelect" class="is-skeleton">
-                                    <option value="0">All categories</option>
-                                </select>
-                            </div>
-                            <span class="icon is-medium is-left">
-                                <i class="fas fa-filter"></i>
-                            </span>
-                        </div>
+            <div class="pageContent">
 
+                <div class="level is-mobile">
+                    <div class="level-left">
+                        <div class="level-item">
+                            <div class="control has-icons-left">
+                                <div class="select is-rounded">
+                                    <select id="categoriesSelect" class="is-skeleton">
+                                        <option value="0">All categories</option>
+                                    </select>
+                                </div>
+                                <span class="icon is-medium is-left">
+                                    <i class="fas fa-filter"></i>
+                                </span>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div id="categoriesBag">
+                <div id="categoriesBag">
 
-                <div id="categoryTemplate">
-                    <div>
-                        <div class="box mt-5 mb-0 py-2">
-                            <div class="fixed-grid has-3-cols-mobile has-9-cols-tablet">
-                                <div class="grid">
-                                    <div class="cell is-col-span-5 is-align-items-center is-flex">
-                                        <span class="is-size-5 is-skeleton">First category</span>
-                                    </div>
-                                    <div class="cell is-align-items-center is-justify-content-center is-flex is-hidden-mobile">
-                                        <span class="has-text-weight-bold has-text-white-ter">Number</span>
-                                    </div>
-                                    <div class="cell is-align-items-center is-justify-content-center is-flex is-hidden-mobile">
-                                        <span class="has-text-weight-bold has-text-white-ter">Score</span>
-                                    </div>
-                                    <div class="cell is-align-items-center is-justify-content-center is-flex is-hidden-mobile">
-                                        <span class="has-text-weight-bold has-text-white-ter">Date</span>
-                                    </div>
-                                    <div class="cell is-align-items-center is-justify-content-center is-flex is-hidden-mobile">
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="productsBag">
-
-                            <div id="productTemplate" class="box my-2 py-2">
+                    <div id="categoryTemplate">
+                        <div>
+                            <div class="box mt-5 mb-0 py-2">
                                 <div class="fixed-grid has-3-cols-mobile has-9-cols-tablet">
                                     <div class="grid">
                                         <div class="cell is-col-span-5 is-align-items-center is-flex">
-                                            <span class="is-skeleton">Not very long description of the first product</span>
+                                            <span class="is-size-5 is-skeleton">First category</span>
                                         </div>
-                                        <div class="cell is-align-items-center is-justify-content-center is-flex">
-                                            <span class="productNumber has-text-weight-bold is-skeleton">12345678</span>
+                                        <div class="cell is-align-items-center is-justify-content-center is-flex is-hidden-mobile">
+                                            <span class="has-text-weight-bold has-text-white-ter">Number</span>
                                         </div>
-                                        <div class="cell is-align-items-center is-justify-content-center is-flex">
-                                            <span class="productScore has-text-weight-bold is-skeleton">AA</span>
+                                        <div class="cell is-align-items-center is-justify-content-center is-flex is-hidden-mobile">
+                                            <span class="has-text-weight-bold has-text-white-ter">Score</span>
                                         </div>
-                                        <div class="cell is-align-items-center is-justify-content-center is-flex">
-                                            <span class="productProducedAtIcon is-skeleton icon is-small has-text-white-ter mr-1">
-                                                <i class="fa-solid fa-calendar-days"></i>
-                                            </span>
-                                            <span class="productProducedAt has-text-weight-bold is-skeleton">11/21</span>
+                                        <div class="cell is-align-items-center is-justify-content-center is-flex is-hidden-mobile">
+                                            <span class="has-text-weight-bold has-text-white-ter">Date</span>
                                         </div>
-                                        <div class="cell is-align-items-center is-justify-content-center is-flex">
-                                            <button class="productButButton button is-primary is-outlined is-rounded is-skeleton">Buy 50$</button>
+                                        <div class="cell is-align-items-center is-justify-content-center is-flex is-hidden-mobile">
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="productsBag">
+
+                                <div id="productTemplate" class="box my-2 py-2">
+                                    <div class="fixed-grid has-3-cols-mobile has-9-cols-tablet">
+                                        <div class="grid">
+                                            <div class="cell is-col-span-5 is-align-items-center is-flex">
+                                                <span class="is-skeleton">Not very long description of the first product</span>
+                                            </div>
+                                            <div class="cell is-align-items-center is-justify-content-center is-flex">
+                                                <span class="productNumber has-text-weight-bold is-skeleton">12345678</span>
+                                            </div>
+                                            <div class="cell is-align-items-center is-justify-content-center is-flex">
+                                                <span class="productScore has-text-weight-bold is-skeleton">AA</span>
+                                            </div>
+                                            <div class="cell is-align-items-center is-justify-content-center is-flex">
+                                                <span class="productProducedAtIcon is-skeleton icon is-small has-text-white-ter mr-1">
+                                                    <i class="fa-solid fa-calendar-days"></i>
+                                                </span>
+                                                <span class="productProducedAt has-text-weight-bold is-skeleton">11/21</span>
+                                            </div>
+                                            <div class="cell is-align-items-center is-justify-content-center is-flex">
+                                                <button class="productButButton button is-primary is-outlined is-rounded is-skeleton">Buy 50$</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -293,7 +313,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </section>
