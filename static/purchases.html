@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/styles/style.css">
+    <script type="text/javascript" src="/static/js/jquery-3.7.1.min.js"></script>
+    <script type="text/javascript" src="/static/js/app.js"></script>
+    <title>Horizon Glow: Purchases</title>
+</head>
+<body>
+
+<script>
+    $(document).ready(function() {
+        loadProfile();
+        loadPurchases();
+    });
+
+    function loadPurchases() {
+        $.get({
+            url: `/api/user/purchases/`,
+            dataType: "json",
+            success: function(data) {
+                const purchasesBag = $(`#purchasesBag`);
+                const template = $("#purchaseTemplate");
+
+                for (let pur of data) {
+                    const productElement = template.clone();
+                    productElement.attr("id", null);
+                    productElement.find(".cell > span").first().removeClass("is-skeleton").addClass("has-text-grey-light").text(pur.description);
+                    productElement.find(".productNumber").removeClass("is-skeleton").addClass("has-text-white-ter").text(pur.number);
+                    productElement.find(".productScore").removeClass("is-skeleton").addClass("has-text-white-ter").text(pur.score);
+                    productElement.find(".productPurchasedAtIcon").removeClass("is-skeleton");
+
+                    const date = new Date(pur["purchasedAt"]);
+                    const dateString = ('0' + (date.getMonth() + 1)).slice(-2) + '/' + ('0' + date.getDate()).slice(-2);
+                    productElement.find(".productProducedAt").removeClass("is-skeleton").addClass("has-text-white-ter").text(dateString);
+                    productElement.find(".productDownloadButton").removeClass("is-skeleton").click(() => {});
+
+                    purchasesBag.append(productElement);
+                }
+
+                template.hide();
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                tryHandleAuthError(jqXHR);
+
+                showError(jqXHR);
+            }
+        });
+    }
+</script>
+
+<section class="section container pt-4">
+    <div class="columns is-centered">
+        <div class="column is-12">
+            <div class="box py-1">
+                <div class="level">
+                    <div class="level-left">
+                        <div class="level-item is-mobile">
+                            <button class="button is-text is-size-5 has-text-weight-semi-bold has-text-primary is-rounded" style="text-decoration: none">
+                                <span class="icon is-small">
+                                    <i class="fas fa-house"></i>
+                                </span>
+                                <span>Home</span>
+                            </button>
+                            <button class="button is-text is-size-5 has-text-info is-rounded" style="text-decoration: none">
+                                <span class="icon is-small">
+                                    <i class="fas fa-book"></i>
+                                </span>
+                                <span>Rules</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="level-item header-centered">
+                        <span class="title is-4">HORIZON GLOW</span>
+                    </div>
+                    <div class="level-right">
+                        <div class="level-item">
+                            <span class="has-text-weight-bold mr-1 is-skeleton" id="balance">$38,70</span>
+                            <span class="icon mr-3">
+                                <i class="fas fa-wallet" aria-hidden="true"></i>
+                            </span>
+                            <div class="dropdown is-hoverable is-right">
+                                <div class="dropdown-trigger">
+                                    <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+                                        <span class="mr-2 is-skeleton" id="username">username</span>
+                                        <span class="icon is-small">
+                                        <i class="fas fa-user" aria-hidden="true"></i>
+                                    </span>
+                                    </button>
+                                </div>
+                                <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                                    <div class="dropdown-content pl-2">
+                                        <a href="#" class="dropdown-item"><span class="icon"><i class="fas fa-basket-shopping mr-2" aria-hidden="true"></i></span> My purchases </a>
+                                        <a class="dropdown-item"><span class="icon"><i class="fas fa-user-pen mr-2" aria-hidden="true"></i></span> Edit profile </a>
+                                        <a href="#" class="dropdown-item"><span class="icon"><i class="fa-brands fa-bitcoin mr-2" aria-hidden="true"></i></span> Topup balance </a>
+                                        <a href="#" class="dropdown-item"><span class="icon"><i class="fas fa-comments mr-2" aria-hidden="true"></i></span> Support </a>
+                                        <hr class="dropdown-divider" />
+                                        <a href="#" onclick="logout()" class="dropdown-item"><span class="icon"><i class="fas fa-right-from-bracket" aria-hidden="true"></i></span> Logout </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pageContent">
+                <div class="box mt-5 mb-0 py-2">
+                    <div class="fixed-grid has-2-cols-mobile has-5-cols-tablet">
+                        <div class="grid">
+                            <div class="cell is-col-span-2 is-col-span-3-tablet is-align-items-center is-flex">
+                                <span class="is-size-5 has-text-weight-bold has-text-white-ter">Your purchases</span>
+                            </div>
+                            <div class="cell is-col-span-2 is-hidden-mobile" style="margin-top: 0.2rem;">
+                                <div class="level is-mobile">
+                                    <div class="is-align-items-center is-justify-content-center is-flex" style="width: 30%">
+                                        <span class="has-text-weight-bold has-text-white-ter">Number</span>
+                                    </div>
+                                    <div class="is-align-items-center is-justify-content-center is-flex" style="width: 20%">
+                                        <span class="has-text-weight-bold has-text-white-ter">Score</span>
+                                    </div>
+                                    <div class="is-align-items-center is-justify-content-center is-flex" style="width: 20%">
+                                        <span class="has-text-weight-bold has-text-white-ter">Purchased</span>
+                                    </div>
+                                    <div class="is-align-items-center is-justify-content-center is-flex" style="width: 20%">
+                                        <span class="has-text-weight-bold has-text-white-ter">Price</span>
+                                    </div>
+                                    <div class="is-align-items-center is-justify-content-center is-flex" style="width: 10%">
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="purchasesBag">
+
+                    <div id="productTemplate" class="box my-2 py-2">
+                        <div class="fixed-grid has-2-cols-mobile has-5-cols-tablet">
+                            <div class="grid">
+                                <div class="cell is-col-span-2 is-col-span-3-tablet is-align-items-center is-flex">
+                                    <span class="is-skeleton">Not very long description of the first product</span>
+                                </div>
+                                <div class="cell is-col-span-2">
+                                    <div class="level is-mobile">
+                                        <div class="is-align-items-center is-justify-content-center is-flex" style="width: 30%">
+                                            <span class="productNumber has-text-weight-bold is-skeleton">12345678</span>
+                                        </div>
+                                        <div class="is-align-items-center is-justify-content-center is-flex" style="width: 20%">
+                                            <span class="productNumber has-text-weight-bold is-skeleton">AA</span>
+                                        </div>
+                                        <div class="is-align-items-center is-justify-content-center is-flex" style="width: 20%">
+                                            <span class="productPurchasedAtIcon icon is-small has-text-white-ter mr-1">
+                                                <i class="fa-solid fa-calendar-days"></i>
+                                            </span>
+                                            <span class="productProducedAt has-text-weight-bold is-skeleton">12/05</span>
+                                        </div>
+                                        <div class="is-align-items-center is-justify-content-center is-flex" style="width: 20%">
+                                            <span class="productScore has-text-weight-bold is-skeleton">$45.00</span>
+                                        </div>
+                                        <div class="is-align-items-center is-justify-content-center is-flex" style="width: 10%">
+                                            <button class="productDownloadButton button is-primary is-outlined is-skeleton">
+                                                <span class="icon is-small">
+                                                    <i class="fa-solid fa-download"></i>
+                                                </span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

@@ -61,6 +61,10 @@ body {
         left: 50%;
         transform: translateX(-50%);
     }
+
+    .cell.is-col-span-3-tablet {
+        --bulma-grid-cell-column-span: 3
+    }
 }
 
 
