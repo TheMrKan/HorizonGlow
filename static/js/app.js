@@ -51,3 +51,24 @@ function notify(msg, mode, duration) {
         }, 350);
     }, duration);
 }
+
+function loadProfile() {
+    $.get({
+        url: "/api/account/",
+        dataType: "json",
+        success: function(data) {
+            const username = $("#username");
+            username.text(data.username);
+            username.removeClass("is-skeleton");
+
+            const balance = $("#balance");
+            balance.text("$" + Number(data.balance).toFixed(2));
+            balance.removeClass("is-skeleton");
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            tryHandleAuthError(jqXHR);
+
+            showError(jqXHR);
+        }
+    });
+}

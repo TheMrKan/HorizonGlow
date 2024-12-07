@@ -135,7 +135,7 @@
                 window.location.href = "/";
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                if (jqXHR.status == 401) {
+                if (jqXHR.status == 401 || jqXHR.status == 403) {
                     setError("Incorrect username, password or secret phrase");
                 }
                 else if (jqXHR.status == 400) {
