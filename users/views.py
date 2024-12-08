@@ -65,6 +65,6 @@ class PurchasesView(ListAPIView):
     serializer_class = PurchaseSerializer
 
     def get_queryset(self):
-        return self.request.user.purchased_products.all()
+        return self.request.user.purchased_products.order_by("-purchased_at").all()
 
 
