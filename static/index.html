@@ -74,7 +74,6 @@
                 dataType: "json",
                 success: function(data) {
 
-                    // console.log(element.childNodes);
                     const categNameElement = element.find(".is-size-5");
                     categNameElement.removeClass("is-skeleton");
                     categNameElement.addClass("has-text-weight-bold is-size-5 has-text-white-ter");
@@ -106,15 +105,7 @@
                 element.attr("id", elemId);
                 element.find(".productsBag").children().remove();
 
-                const bag = $("#categoriesBag");
-                const index = categories[id].index;
-                if (index >= bag.children().length) {
-                    bag.append(element);
-                }
-                else {
-                    // bag.children().eq(index).before(element);
-                    bag.append(element);
-                }
+                $("#categoriesBag").append(element);
             }
 
             return element;
@@ -148,7 +139,7 @@
                 url: `/api/products/${productId}/buy/`,
                 dataType: "json",
                 success: function (data) {
-                    window.location.reload();
+                    window.location.href = "/purchases/"
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     tryHandleAuthError(jqXHR);
@@ -167,7 +158,7 @@
                 <div class="level">
                     <div class="level-left">
                         <div class="level-item is-mobile">
-                            <button class="button is-text is-size-5 has-text-weight-semi-bold has-text-primary is-rounded" style="text-decoration: none">
+                            <button onclick="location.href='/'" class="button is-text is-size-5 has-text-weight-semi-bold has-text-primary is-rounded" style="text-decoration: none">
                                 <span class="icon is-small">
                                     <i class="fas fa-house"></i>
                                 </span>
@@ -186,7 +177,7 @@
                     </div>
                     <div class="level-right">
                         <div class="level-item">
-                            <span class="has-text-weight-bold mr-1 is-skeleton" id="balance">$38,70</span>
+                            <span class="has-text-weight-bold mr-1 is-skeleton" id="balance">$00,00</span>
                             <span class="icon mr-3">
                                 <i class="fas fa-wallet" aria-hidden="true"></i>
                             </span>
@@ -201,7 +192,7 @@
                                 </div>
                                 <div class="dropdown-menu" id="dropdown-menu" role="menu">
                                     <div class="dropdown-content pl-2">
-                                        <a href="#" class="dropdown-item"><span class="icon"><i class="fas fa-basket-shopping mr-2" aria-hidden="true"></i></span> My purchases </a>
+                                        <a href="/purchases" class="dropdown-item"><span class="icon"><i class="fas fa-basket-shopping mr-2" aria-hidden="true"></i></span> My purchases </a>
                                         <a class="dropdown-item"><span class="icon"><i class="fas fa-user-pen mr-2" aria-hidden="true"></i></span> Edit profile </a>
                                         <a href="#" class="dropdown-item"><span class="icon"><i class="fa-brands fa-bitcoin mr-2" aria-hidden="true"></i></span> Topup balance </a>
                                         <a href="#" class="dropdown-item"><span class="icon"><i class="fas fa-comments mr-2" aria-hidden="true"></i></span> Support </a>
@@ -243,7 +234,7 @@
                                 <div class="fixed-grid has-3-cols-mobile has-9-cols-tablet">
                                     <div class="grid">
                                         <div class="cell is-col-span-5 is-align-items-center is-flex">
-                                            <span class="is-size-5 is-skeleton">First category</span>
+                                            <span class="is-size-5 is-skeleton">SKELETON SKELETON</span>
                                         </div>
                                         <div class="cell is-align-items-center is-justify-content-center is-flex is-hidden-mobile">
                                             <span class="has-text-weight-bold has-text-white-ter">Number</span>
@@ -270,7 +261,7 @@
                                                 <span class="is-skeleton">Not very long description of the first product</span>
                                             </div>
                                             <div class="cell is-align-items-center is-justify-content-center is-flex">
-                                                <span class="productNumber has-text-weight-bold is-skeleton">12345678</span>
+                                                <span class="productNumber has-text-weight-bold is-skeleton">11111111</span>
                                             </div>
                                             <div class="cell is-align-items-center is-justify-content-center is-flex">
                                                 <span class="productScore has-text-weight-bold is-skeleton">AA</span>
@@ -279,10 +270,10 @@
                                                 <span class="productProducedAtIcon is-skeleton icon is-small has-text-white-ter mr-1">
                                                     <i class="fa-solid fa-calendar-days"></i>
                                                 </span>
-                                                <span class="productProducedAt has-text-weight-bold is-skeleton">11/21</span>
+                                                <span class="productProducedAt has-text-weight-bold is-skeleton">00/00</span>
                                             </div>
                                             <div class="cell is-align-items-center is-justify-content-center is-flex">
-                                                <button class="productBuyButton button is-primary is-outlined is-rounded is-skeleton">Buy 50$</button>
+                                                <button class="productBuyButton button is-primary is-outlined is-rounded is-skeleton">Buy 00$</button>
                                             </div>
                                         </div>
                                     </div>

@@ -3,11 +3,14 @@ from django.contrib.auth import login
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView
+from rest_framework.mixins import ListModelMixin
 from .serializers import AuthTokenSerializer, UserCredentialsSerializer, AccountSerializer
 from .models import User
 from .auth import CookieTokenAuthentication
 from knox.views import LoginView as KnoxLoginView
 from rest_framework.settings import api_settings
+from .serializers import PurchaseSerializer
 
 
 class RegisterView(KnoxLoginView):
@@ -55,5 +58,13 @@ class AccountView(APIView):
     def get(self, request, format=None):
         serializer = AccountSerializer(request.user)
         return Response(serializer.data)
+
+
+class PurchasesView(ListAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = PurchaseSerializer
+
+    def get_queryset(self):
+        return self.request.user.purchased_products.all()
 
 

@@ -3,6 +3,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from .models import User
+from products.models import Product
 
 from users.services import UserCreator
 
@@ -101,6 +102,12 @@ class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'balance')
+
+
+class PurchaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ('id', 'description', 'number', 'score', 'purchased_at', 'price')
 
 
 
