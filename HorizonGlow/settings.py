@@ -147,6 +147,8 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+MEDIA_ROOT = BASE_DIR / 'product_files'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -210,10 +212,15 @@ logging.config.dictConfig({
 })
 
 
-
 STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "OPTIONS": {
+            "allow_overwrite": True,
+        }
+    },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
+    }
 }
 WHITENOISE_MAX_AGE = 86400

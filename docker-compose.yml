@@ -6,6 +6,7 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/usr/src/app/
+      - product_files:/usr/src/app/product_files
     ports:
       - "8000:8000"
     env_file:
@@ -26,3 +27,4 @@ services:
 
 volumes:
   pg_data:
+  product_files:

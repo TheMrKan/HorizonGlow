@@ -29,7 +29,7 @@ class Category(models.Model):
 
 class AvailableManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(purchased_by=None)
+        return super().get_queryset().filter(purchased_by=None).exclude(file__isnull=True).exclude(file__exact='')
 
 
 class Product(models.Model):
@@ -44,6 +44,7 @@ class Product(models.Model):
     added_at = models.DateTimeField(auto_now_add=True)
     purchased_at = models.DateTimeField(null=True, default=None, blank=True)
     purchased_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, default=None, blank=True, related_name='purchased_products')
+    file = models.FileField(null=True, default=None, blank=True)
 
     objects = models.Manager()
     available = AvailableManager()
