@@ -104,7 +104,7 @@ class ProductFileManager:
         return int(name)
 
     def has_file(self):
-        return self.product.file and self.product.file.storage.exists(self.product.file.name)
+        return bool(self.product.file) and self.product.file.storage.exists(self.product.file.name)
 
     def update_file(self, new_file: FieldFile | None, commit=True, bypass_validation=False):
         if not bypass_validation:

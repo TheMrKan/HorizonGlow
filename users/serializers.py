@@ -2,9 +2,10 @@ from rest_framework import serializers, status
 from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
+from django.urls import reverse
 from .models import User
 from products.models import Product
-
+from products.services import ProductFileManager
 from users.services import UserCreator
 
 
@@ -105,9 +106,18 @@ class AccountSerializer(serializers.ModelSerializer):
 
 
 class PurchaseSerializer(serializers.ModelSerializer):
+    file_available = serializers.SerializerMethodField()
+    file_url = serializers.SerializerMethodField()
+
+    def get_file_available(self, obj: Product):
+        return ProductFileManager(obj).has_file()
+
+    def get_file_url(self, obj: Product):
+        return reverse("product-download", kwargs={"pk": obj.id})
+
     class Meta:
         model = Product
-        fields = ('id', 'description', 'number', 'score', 'purchased_at', 'price')
+        fields = ('id', 'description', 'number', 'score', 'purchased_at', 'price', "file_available", "file_url")
 
 
 

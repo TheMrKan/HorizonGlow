@@ -45,6 +45,11 @@ body {
     --bulma-table-cell-background-color: rgba(0, 0, 0, 0);
 }
 
+.button.is-primary[disabled] {
+    background-color: rgba(0, 0, 0, 0);
+    opacity: 0.3;
+}
+
 @media screen and (max-width: 768px) {
     .only-desktop {
       all: unset;
