@@ -62,9 +62,10 @@ class ProductAdminForm(ModelForm):
 
     def clean_file(self):
         new_file: FieldFile | None = self.cleaned_data.get("file", None)
+        print(f"VALIDATOR {new_file}")
 
         try:
-            ProductFileManager.validate_file(new_file)
+            ProductFileManager.validate_file(None if new_file is False else new_file)
         except ProductFileManager.InvalidFileTypeError:
             raise ValidationError(f"Invalid file type. Allowed types: {', '.join(ProductFileManager.ALLOWED_EXTENSIONS)}", code="invalid_type")
         except ProductFileManager.FileTooLargeError:
