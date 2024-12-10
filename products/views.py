@@ -8,6 +8,7 @@ from .serializers import CategorySerializer, ProductSerializer
 from .services import ProductBuyer, ProductFileManager
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet, NumberFilter
 from django.http.response import FileResponse
+import os.path
 
 
 class CategoryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
@@ -85,6 +86,9 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
 
         response = FileResponse(file_handle, content_type='whatever')
         response['Content-Length'] = product.file.size
-        response['Content-Disposition'] = 'attachment; filename="%s"' % product.file.name
+
+        _, ext = os.path.splitext(product.file.name)
+        filename = f"horizon_glow_{product.id}" + ext
+        response['Content-Disposition'] = 'attachment; filename="%s"' % filename
 
         return response
