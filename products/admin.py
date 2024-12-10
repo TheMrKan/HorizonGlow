@@ -3,13 +3,44 @@ from django.contrib import admin
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm
 from django.db.models.fields.files import FieldFile
+from django.db.models import FileField
+from django.contrib.admin.widgets import AdminFileWidget
 from .models import Category, Product
 from .services import ProductFileManager
+from django.urls import reverse
 
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     pass
+
+
+class MockFileForWidgetRender:
+    filename: str
+    url: str
+
+    def __init__(self, filename: str, url: str):
+        self.filename = filename
+        self.url = url
+
+    def __str__(self):
+        return self.filename
+
+    def __repr__(self):
+        return self.__str__()
+
+
+class ProductFileInputWidget(AdminFileWidget):
+    def format_value(self, value):
+        """
+        Переопределяем получение ссылки на скачивание файла в строке "Currently: <название файла>"
+        """
+        file: FieldFile | None = super().format_value(value)
+        if file:
+            product_id = ProductFileManager.get_product_id_from_filename(file.name)
+            url = reverse("product-download", kwargs={"pk": product_id})
+            return MockFileForWidgetRender(file.name, url)
+        return None
 
 
 class ProductAdminForm(ModelForm):
@@ -63,5 +94,10 @@ class ProductAdminForm(ModelForm):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ["description", "category", "number", "score", "price", "purchased_by"]
+
     form = ProductAdminForm
+    formfield_overrides = {
+        FileField: {"widget": ProductFileInputWidget},
+    }
+
 

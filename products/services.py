@@ -100,6 +100,11 @@ class ProductFileManager:
         name, ext = os.path.splitext(file.name)
         file.name = cls.SAFE_NAME + ext
 
+    @staticmethod
+    def get_product_id_from_filename(filename: str) -> int:
+        name, ext = os.path.splitext(filename)
+        return int(name)
+
     def update_file(self, commit=True, bypass_validation=False):
         if not bypass_validation:
             self.validate_file(self.new_file)
