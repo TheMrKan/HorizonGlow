@@ -52,15 +52,58 @@ class ProductBuyer:
 
 
 class ProductFileManager:
+    ALLOWED_EXTENSIONS = {'.zip', '.rar', '.7z'}
+    MAX_FILE_SIZE_BYTES = 1024 * 1024 * 10    # 10 МБ
+    SAFE_NAME = "upload"
 
     product: Product
     new_file: FieldFile | None
+
+    class InvalidFileTypeError(Exception):
+        extension: str
+
+        def __init__(self, extension: str):
+            self.extension = extension
+            super().__init__(f'Invalid file type: {extension}')
+
+    class FileTooLargeError(Exception):
+        pass
 
     def __init__(self, product: Product, new_file: FieldFile | None):
         self.product = product
         self.new_file = new_file
 
-    def update_file(self, commit=True):
+    @classmethod
+    def validate_file(cls, file: FieldFile | None, set_safe_name=True):
+        if file is None:
+            return
+
+        path, ext = os.path.splitext(file.name)
+        if ext not in cls.ALLOWED_EXTENSIONS:
+            raise cls.InvalidFileTypeError(ext)
+
+        if file.size > cls.MAX_FILE_SIZE_BYTES:
+            raise cls.FileTooLargeError
+
+        if set_safe_name:
+            cls.set_safe_name(file)
+
+    @classmethod
+    def set_safe_name(cls, file: FieldFile | None):
+        """
+        Заменяет название файла на константу, сохраняя оригинальное расширение.
+        Должен быть вызван на этапе валидации файла
+        В формах файл может сохраняться сразу после валидации, что может быть использовано для повреждения файлов других товаров, т. к. в хранилище включена перезапись
+        Пример: при загрузке пустого архива '12.zip', если он будет сохранен не сервисом, то он перезапишет существующий файл товара с ID 12.
+
+        """
+        name, ext = os.path.splitext(file.name)
+        file.name = cls.SAFE_NAME + ext
+
+    def update_file(self, commit=True, bypass_validation=False):
+        if not bypass_validation:
+            self.validate_file(self.new_file)
+
         # удаление файла товара
         if not self.new_file:
             if self.product.file:

@@ -30,8 +30,17 @@ class ProductAdminForm(ModelForm):
         pass
 
     def clean_file(self):
+        new_file: FieldFile | None = self.cleaned_data.get("file", None)
+
+        try:
+            ProductFileManager.validate_file(new_file)
+        except ProductFileManager.InvalidFileTypeError:
+            raise ValidationError(f"Invalid file type. Allowed types: {', '.join(ProductFileManager.ALLOWED_EXTENSIONS)}", code="invalid_type")
+        except ProductFileManager.FileTooLargeError:
+            raise ValidationError(f"File is too large. Max bytes: {ProductFileManager.MAX_FILE_SIZE_BYTES}", "too_large")
+
         self.old_file = self.instance.file if self.instance else None
-        return self.cleaned_data.get("file", None)
+        return new_file
 
     def save(self, commit=True):
         new_file = self.instance.file    # файл записывается в instance до вызова save
@@ -42,10 +51,8 @@ class ProductAdminForm(ModelForm):
 
         # приводим модель в состояние, не тронутое формой, т. к. сервис может быть вызван из DRF view
         self.instance.file = self.old_file
-        try:
-            ProductFileManager(self.instance, new_file).update_file(commit=False)
-        except Exception as e:
-            raise ValidationError(str(e))
+
+        ProductFileManager(self.instance, new_file).update_file(commit=False, bypass_validation=True)
 
         if commit:
             self.instance.save()
