@@ -15,4 +15,6 @@ RUN chmod +x /usr/src/app/entrypoint.prod.sh
 
 COPY . .
 
+RUN mkdir -p product_files
+
 ENTRYPOINT ["/usr/src/app/entrypoint.prod.sh"]
