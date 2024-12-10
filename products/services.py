@@ -57,7 +57,6 @@ class ProductFileManager:
     SAFE_NAME = "upload"
 
     product: Product
-    new_file: FieldFile | None
 
     class InvalidFileTypeError(Exception):
         extension: str
@@ -69,9 +68,8 @@ class ProductFileManager:
     class FileTooLargeError(Exception):
         pass
 
-    def __init__(self, product: Product, new_file: FieldFile | None):
+    def __init__(self, product: Product):
         self.product = product
-        self.new_file = new_file
 
     @classmethod
     def validate_file(cls, file: FieldFile | None, set_safe_name=True):
@@ -105,30 +103,33 @@ class ProductFileManager:
         name, ext = os.path.splitext(filename)
         return int(name)
 
-    def update_file(self, commit=True, bypass_validation=False):
+    def has_file(self):
+        return self.product.file and self.product.file.storage.exists(self.product.file.name)
+
+    def update_file(self, new_file: FieldFile | None, commit=True, bypass_validation=False):
         if not bypass_validation:
-            self.validate_file(self.new_file)
+            self.validate_file(new_file)
 
         # удаление файла товара
-        if not self.new_file:
+        if not new_file:
             if self.product.file:
                 self.product.file.delete(save=commit)
                 self.product.file = None
             return
 
-        new_file_orig_name = self.new_file.name
-        self.new_file.name = self.__get_filename_for_storage(self.new_file.name)
+        new_file_orig_name = new_file.name
+        new_file.name = self.__get_filename_for_storage(new_file.name)
 
         # если расширение нового и старого файла не совпадает, то создастся новый файл, а старый не удалится, поэтому удаляем явно
-        if self.product.file and self.product.file.name != self.new_file.name:
+        if self.product.file and self.product.file.name != new_file.name:
             self.product.file.delete(save=False)
             self.product.file = None
 
         # на случай, если файл с оригинальным названием сохранился по какой-то причине (например формой)
-        if not self.product.file and self.new_file.storage.exists(new_file_orig_name):
-            self.new_file.storage.delete(new_file_orig_name)
+        if not self.product.file and new_file.storage.exists(new_file_orig_name):
+            new_file.storage.delete(new_file_orig_name)
 
-        self.product.file = self.new_file
+        self.product.file = new_file
 
         if commit:
             self.product.save()

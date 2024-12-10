@@ -5,7 +5,7 @@ from rest_framework.renderers import BaseRenderer
 from utils.exceptions import APIException
 from .models import Category, Product
 from .serializers import CategorySerializer, ProductSerializer
-from .services import ProductBuyer
+from .services import ProductBuyer, ProductFileManager
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet, NumberFilter
 from django.http.response import FileResponse
 
@@ -36,8 +36,21 @@ class PassthroughRenderer(BaseRenderer):
         return data
 
 
+class CanDownload(permissions.BasePermission):
+    def has_object_permission(self, request, view, product: Product):
+        if not isinstance(product, Product):
+            raise TypeError("Unsupported object type: %s" % type(product))
+
+        # в т. ч. обеспечивает доступ админ-аккаунтам
+        if request.user.has_perm('products.download_all_products'):
+            return True
+
+        if product.purchased_by == request.user or product.seller == request.user:
+            return True
+
+
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated, )
 
     queryset = Product.available.all()
     serializer_class = ProductSerializer
@@ -58,9 +71,15 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
         except Exception as e:
             raise APIException(detail=str(e), code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @action(detail=True, methods=['get'])
+    @action(detail=True,
+            methods=['get'],
+            queryset=Product.objects.all(),
+            permission_classes=(*permission_classes, CanDownload))
     def download(self, request, pk=None):
-        product = self.get_object()
+        product: Product = self.get_object()
+
+        if not ProductFileManager(product).has_file():
+            raise APIException(detail="File for this product hasn't been added yet or has already been deleted", code="no_file", status=status.HTTP_409_CONFLICT)
 
         file_handle = product.file.open()
 
@@ -69,5 +88,3 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
         response['Content-Disposition'] = 'attachment; filename="%s"' % product.file.name
 
         return response
-
-

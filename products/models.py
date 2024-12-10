@@ -49,6 +49,11 @@ class Product(models.Model):
     objects = models.Manager()
     available = AvailableManager()
 
+    class Meta:
+        permissions = [
+            ("download_all_products", "Can download file of any product")
+        ]
+
     def __str__(self):
         return self.description
 

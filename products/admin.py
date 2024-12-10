@@ -83,7 +83,7 @@ class ProductAdminForm(ModelForm):
         # приводим модель в состояние, не тронутое формой, т. к. сервис может быть вызван из DRF view
         self.instance.file = self.old_file
 
-        ProductFileManager(self.instance, new_file).update_file(commit=False, bypass_validation=True)
+        ProductFileManager(self.instance).update_file(new_file, commit=False, bypass_validation=True)
 
         if commit:
             self.instance.save()
