@@ -72,3 +72,15 @@ function loadProfile() {
         }
     });
 }
+
+function logout() {
+    $.post({
+        url: "/api/auth/logout/",
+        success: function(data) {
+            window.location.href = "/auth/login/";
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            showError(jqXHR);
+        }
+    });
+}
