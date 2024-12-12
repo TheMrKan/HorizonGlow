@@ -1,5 +1,7 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
+# перенос переменных окружения контейнера в cron
+# https://habr.com/ru/companies/redmadrobot/articles/305364/
 set -e
 
 # переносим значения переменных из текущего окружения
