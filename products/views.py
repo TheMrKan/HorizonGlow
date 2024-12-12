@@ -69,6 +69,8 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
             raise APIException('Product already bought', code="already_bought", status=status.HTTP_409_CONFLICT)
         except ProductBuyer.InsufficientBalanceError:
             raise APIException('Insufficient balance', code="insufficient_balance", status=status.HTTP_409_CONFLICT)
+        except ProductBuyer.BuyingBySellerError:
+            raise APIException("You can't buy the product you are selling", code="buying_by_seller", status=status.HTTP_409_CONFLICT)
         except Exception as e:
             raise APIException(detail=str(e), code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

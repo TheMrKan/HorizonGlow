@@ -24,6 +24,9 @@ class ProductBuyer:
     class AlreadyBoughtError(Exception):
         pass
 
+    class BuyingBySellerError(Exception):
+        pass
+
     def __init__(self, product_id: int, user_id: str):
         self.product_id = product_id
         self.user_id = user_id
@@ -44,6 +47,9 @@ class ProductBuyer:
         self.user = User.objects.get(id=self.user_id)
 
     def __assert_can_buy(self):
+        if self.product.seller == self.user:
+            raise self.BuyingBySellerError
+
         if self.product.purchased_by:
             raise self.AlreadyBoughtError
 
