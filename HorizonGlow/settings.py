@@ -154,14 +154,14 @@ MEDIA_ROOT = BASE_DIR / 'product_files'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'users.auth.CookieTokenAuthentication',
     ],
-    'DEFAULT_RENDERER_CLASSES': (
+    'DEFAULT_RENDERER_CLASSES': [
         'djangorestframework_camel_case.render.CamelCaseJSONRenderer',
-        'djangorestframework_camel_case.render.CamelCaseBrowsableAPIRenderer',
-    ),
+    ],
     'DEFAULT_PARSER_CLASSES': (
         'djangorestframework_camel_case.parser.CamelCaseFormParser',
         'djangorestframework_camel_case.parser.CamelCaseMultiPartParser',
@@ -169,6 +169,9 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
+BROWSABLE_API = env.bool("BROWSABLE_API", DEBUG)
+if BROWSABLE_API:
+    REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"].append('djangorestframework_camel_case.render.CamelCaseBrowsableAPIRenderer')
 
 # некоторые опции из https://github.com/jazzband/django-rest-knox/pull/277
 REST_KNOX = {
