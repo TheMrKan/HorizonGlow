@@ -1,7 +1,6 @@
 from .models import Product
 from users.models import User
 from django.db import transaction
-import datetime
 import os.path
 from django.db.models.fields.files import FieldFile
 from typing import List
@@ -44,7 +43,7 @@ class ProductBuyer:
             self.__assert_can_buy()
 
             self.product.purchased_by = self.user
-            self.product.purchased_at = datetime.datetime.now()
+            self.product.purchased_at = timezone.now()
             self.user.balance -= self.product.price
             self.product.save()
             self.user.save()
