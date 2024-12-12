@@ -17,4 +17,9 @@ COPY . .
 
 RUN mkdir -p product_files
 
+# setup cron https://stackoverflow.com/a/37458519
+RUN apt-get update && apt-get -y install cron
+ADD prune_files.crontab.prod /etc/prune_files.crontab
+RUN crontab /etc/prune_files.crontab
+
 ENTRYPOINT ["/usr/src/app/entrypoint.prod.sh"]

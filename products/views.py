@@ -71,6 +71,8 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
             raise APIException('Insufficient balance', code="insufficient_balance", status=status.HTTP_409_CONFLICT)
         except ProductBuyer.BuyingBySellerError:
             raise APIException("You can't buy the product you are selling", code="buying_by_seller", status=status.HTTP_409_CONFLICT)
+        except ProductBuyer.NoFileError:
+            raise APIException(detail="File for this product hasn't been added yet or has already been deleted", code="no_file", status=status.HTTP_409_CONFLICT)
         except Exception as e:
             raise APIException(detail=str(e), code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

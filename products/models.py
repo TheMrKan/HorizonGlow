@@ -53,6 +53,15 @@ class Product(models.Model):
         permissions = [
             ("download_all_products", "Can download file of any product")
         ]
+        indexes = [
+            models.Index(fields=['category']),    # для запроса товаров определенной категории
+            models.Index(fields=['purchased_by']),    # для списка покупок пользователя
+            models.Index(
+                fields=['-purchased_at'],
+                name='file_not_null_not_empty_idx',
+                condition=models.Q(file__isnull=False) & ~models.Q(file='')
+            )    # для очистки файлов
+        ]
 
     def __str__(self):
         return self.description

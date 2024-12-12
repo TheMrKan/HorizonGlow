@@ -4,6 +4,10 @@ from django.db import transaction
 import datetime
 import os.path
 from django.db.models.fields.files import FieldFile
+from typing import List
+from django.conf import settings
+from django.utils import timezone
+import traceback
 
 
 class ProductBuyer:
@@ -27,6 +31,9 @@ class ProductBuyer:
     class BuyingBySellerError(Exception):
         pass
 
+    class NoFileError(Exception):
+        pass
+
     def __init__(self, product_id: int, user_id: str):
         self.product_id = product_id
         self.user_id = user_id
@@ -47,6 +54,9 @@ class ProductBuyer:
         self.user = User.objects.get(id=self.user_id)
 
     def __assert_can_buy(self):
+        if not ProductFileManager(self.product).has_file():
+            raise self.NoFileError
+
         if self.product.seller == self.user:
             raise self.BuyingBySellerError
 
@@ -154,3 +164,27 @@ class ProductFileManager:
         return str(self.product.id) + ext
 
 
+class ProductFileCleaner:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def prune_outdated_files() -> List[str]:
+        """
+        Удаляет файлы для всех продуктов, купленых более settings.PRODUCT_FILE_MAX_AGE времени назад
+        :return: Список названий удаленных файлов
+        """
+
+        expired = timezone.now() - settings.PRODUCT_FILE_MAX_AGE
+        products = Product.objects.filter(file__isnull=False).exclude(file__exact='').filter(purchased_at__lte=expired)
+
+        result = []
+        for product in products:
+            try:
+                deleted_file = product.file.name
+                ProductFileManager(product).update_file(None)
+                result.append(deleted_file)
+                print(f"[PRUNE] Deleted file {deleted_file} of product {product}")
+            except:
+                traceback.print_exc()
+        return result

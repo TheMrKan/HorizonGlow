@@ -227,3 +227,5 @@ STORAGES = {
     }
 }
 WHITENOISE_MAX_AGE = 86400
+
+PRODUCT_FILE_MAX_AGE = timedelta(seconds=env.int("PRODUCT_FILE_MAX_AGE"))
