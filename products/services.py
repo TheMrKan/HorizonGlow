@@ -69,7 +69,7 @@ class ProductBuyer:
 class ProductFileManager:
     ALLOWED_EXTENSIONS = {'.zip', '.rar', '.7z'}
     MAX_FILE_SIZE_BYTES = 1024 * 1024 * 10    # 10 МБ
-    SAFE_NAME = "upload"
+    UPLOAD_PREFIX = "upload__"
 
     product: Product
 
@@ -104,19 +104,36 @@ class ProductFileManager:
     @classmethod
     def set_safe_name(cls, file: FieldFile | None):
         """
-        Заменяет название файла на константу, сохраняя оригинальное расширение.
+        Добавляет префикс в название файла
         Должен быть вызван на этапе валидации файла
         В формах файл может сохраняться сразу после валидации, что может быть использовано для повреждения файлов других товаров, т. к. в хранилище включена перезапись
         Пример: при загрузке пустого архива '12.zip', если он будет сохранен не сервисом, то он перезапишет существующий файл товара с ID 12.
 
         """
-        name, ext = os.path.splitext(file.name)
-        file.name = cls.SAFE_NAME + ext
+        file.name = cls.UPLOAD_PREFIX + file.name
 
     @staticmethod
     def get_product_id_from_filename(filename: str) -> int:
-        name, ext = os.path.splitext(filename)
-        return int(name)
+        splitted = filename.split("__", 1)
+        if splitted[0].isdigit():
+            return int(splitted[0])
+        else:
+            last_digit = -1
+            for char in splitted[0]:
+                if char.isdigit():
+                    last_digit += 1
+                else:
+                    break
+            if last_digit == -1:
+                raise NameError(f"Failed to extract product id from filename '{filename}'")
+            return int(splitted[0][:last_digit+1])
+
+    @staticmethod
+    def get_original_filename(storage_filename: str):
+        splitted = storage_filename.split("__", 1)
+        if len(splitted) > 1:
+            return splitted[1]
+        return splitted[0]
 
     def has_file(self):
         return bool(self.product.file) and self.product.file.storage.exists(self.product.file.name)
@@ -152,15 +169,17 @@ class ProductFileManager:
     def __get_filename_for_storage(self, original_name: str):
         """
         Возвращает имя файла продукта, под которым он будет храниться в хранилище (на диске)
-        :return: <id продукта>.<расширение оригинального файла>
+        :return: <id продукта>__<название оригинального файла>.<расширение оригинального файла>
         """
         if self.product.id is None:
             raise RuntimeError("Unable to get filename before assigning the ID")
 
-        path, ext = os.path.splitext(original_name)
-        if not ext:
-            raise NameError("Filename must have extension")
-        return str(self.product.id) + ext
+        original_name = original_name.replace(self.UPLOAD_PREFIX, '', 1)
+
+        if not original_name:
+            raise NameError("Empty file name is not allowed")
+
+        return f"{self.product.id}__" + original_name
 
 
 class ProductFileCleaner:

@@ -39,7 +39,7 @@ class ProductFileInputWidget(AdminFileWidget):
         if file:
             product_id = ProductFileManager.get_product_id_from_filename(file.name)
             url = reverse("product-download", kwargs={"pk": product_id})
-            return MockFileForWidgetRender(file.name, url)
+            return MockFileForWidgetRender(ProductFileManager.get_original_filename(file.name), url)
         return None
 
 

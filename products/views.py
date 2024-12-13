@@ -91,8 +91,7 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
         response = FileResponse(file_handle, content_type='whatever')
         response['Content-Length'] = product.file.size
 
-        _, ext = os.path.splitext(product.file.name)
-        filename = f"horizon_glow_{product.id}" + ext
+        filename = ProductFileManager.get_original_filename(product.file.name)
         response['Content-Disposition'] = 'attachment; filename="%s"' % filename
 
         return response
