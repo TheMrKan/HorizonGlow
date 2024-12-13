@@ -31,13 +31,11 @@ body {
 }
 
 .box {
-    --bulma-box-background-color: hsla(from var(--bulma-scheme-main) h s l / 0.8);
-/*    backdrop-filter: blur(4px);*/
+    --bulma-box-background-color: hsla(221, 14%, 9%, 0.8);
 }
 
 .input {
     background-color: hsla(var(--bulma-input-h),var(--bulma-input-s),calc(var(--bulma-input-background-l) + var(--bulma-input-background-l-delta)), 0.2);
-/*    backdrop-filter: blur(2px);*/
 }
 
 .table {
