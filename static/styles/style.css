@@ -48,6 +48,18 @@ body {
     opacity: 0.3;
 }
 
+.centered-box {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.tip {
+    background-color: hsla(0, 0%, 0%, 0.4);
+    border-inline-start-color: hsl(var(--bulma-primary-h), var(--bulma-primary-s), var(--bulma-primary-l));
+}
+
 @media screen and (max-width: 768px) {
     .only-desktop {
       all: unset;
@@ -55,6 +67,10 @@ body {
 
     .header-centered {
         margin-bottom: 0.5rem;
+    }
+
+    .centered-box {
+        width: 89%;
     }
   }
 
@@ -67,6 +83,10 @@ body {
 
     .cell.is-col-span-3-tablet {
         --bulma-grid-cell-column-span: 3
+    }
+
+    .centered-box {
+        width: 450px;
     }
 }
 
