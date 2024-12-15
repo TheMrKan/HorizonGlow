@@ -27,6 +27,7 @@ def create_invoice(api_key: str,
                    order_id: str | None = None,
                    success_url: str | None = None,
                    cancel_url: str | None = None,
+                   is_fee_paid_by_user: bool | None = None
                    ) -> CreatedInvoice:
 
     data = {"price_amount": price, "price_currency": price_currency}
@@ -40,6 +41,8 @@ def create_invoice(api_key: str,
         data["success_url"] = success_url
     if cancel_url:
         data["cancel_url"] = cancel_url
+    if is_fee_paid_by_user is not None:
+        data["is_fee_paid_by_user"] = is_fee_paid_by_user
 
     response = requests.post(
         url="https://api.nowpayments.io/v1/invoice",
