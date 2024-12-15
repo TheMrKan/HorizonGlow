@@ -52,6 +52,8 @@ function notify(msg, mode, duration) {
     }, duration);
 }
 
+let profileBalance = 0;
+const onProfileLoaded = new Event("profileLoaded");
 function loadProfile() {
     $.get({
         url: "/api/account/",
@@ -61,9 +63,12 @@ function loadProfile() {
             username.text(data.username);
             username.removeClass("is-skeleton");
 
+            profileBalance = data["balance"];
             const balance = $("#balance");
-            balance.text("$" + Number(data.balance).toFixed(2));
+            balance.text("$" + Number(profileBalance).toFixed(2));
             balance.removeClass("is-skeleton");
+
+            document.dispatchEvent(onProfileLoaded);
         },
         error: function(jqXHR, textStatus, errorThrown) {
             tryHandleAuthError(jqXHR);
