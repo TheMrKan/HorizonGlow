@@ -49,8 +49,7 @@ class TopupProcessor:
 
     @classmethod
     def update_topup_status(cls, order_id: str, status: str, amount: float):
-
-        if status != "waiting":
+        if status != "finished":
             return
 
         with transaction.atomic(using="serializeable"):
