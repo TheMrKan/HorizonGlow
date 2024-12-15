@@ -39,8 +39,7 @@ class TopupProcessor:
                 callback_url=get_absolute_url(reverse("nowpayments-ipn")),
                 order_id=str(user.id),
                 success_url=get_absolute_url("topup/success"),
-                cancel_url=get_absolute_url("topup/fail"),
-                is_fee_paid_by_user=True
+                cancel_url=get_absolute_url("topup/fail")
             )
 
             return invoice.invoice_url
