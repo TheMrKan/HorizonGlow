@@ -13,8 +13,73 @@
 <body style="height: 100%">
 <script>
     $(document).ready(function() {
+        $("#topupButton").click(topup);
+
         loadProfile();
+        loadMinAmount();
+
+        setFieldError($("#amountField"));
     });
+
+    let minPaymentAmount = NaN;
+
+    function loadMinAmount() {
+        $.get({
+            url: "/api/payment/",
+            success: function(data) {
+                minPaymentAmount = data["minAmount"];
+                $("#minAmount").removeClass("is-skeleton").text(Number(minPaymentAmount).toFixed(2) + "$");
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                tryHandleAuthError(jqXHR);
+
+                showError(jqXHR);
+            }
+        })
+    }
+
+    function topup() {
+        const field = $("#amountField");
+        const amount = parseFloat(field.find("#amountInput").val());
+
+        if (isNaN(amount)) {
+            setFieldError(field, "Incorrect amount");
+            return;
+        }
+
+        if (isNaN(minPaymentAmount)) {
+            setFieldError(field, "The page is still loading. Please, try again");
+            return;
+        }
+
+        if (amount < minPaymentAmount) {
+            setFieldError(field, `Minimal amount is ${Number(minPaymentAmount).toFixed(2)}$`)
+        }
+
+        setFieldError(field);
+
+        const button = $("#topupButton");
+        button.addClass("is-loading");
+
+        $.post({
+            "url": "/api/payment/topup/",
+            dataType: "json",
+            data: {"amount": amount},
+            success: function(data) {
+                console.log(data);
+                notify("Payment created. Redirecting...", "success", 3000);
+
+                setTimeout(() =>window.open(data["paymentUrl"], '_blank').focus(), 1000);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                tryHandleAuthError(jqXHR);
+                showError(jqXHR);
+            },
+            complete: function() {
+                button.removeClass("is-loading");
+            }
+        })
+    }
 </script>
 <section class="section container pt-4">
     <div class="columns is-centered">
@@ -78,16 +143,20 @@
     <div class="box centered-box">
         <h5 class="title is-5 has-text-centered">TOPUP BALANCE</h5>
 
-        <div class="field mb-2">
+        <div id="amountField" class="field mb-2">
             <label class="label">Amount</label>
-            <p class="control has-icons-left">
-                <input class="input" placeholder="150">
+            <p class="control has-icons-left has-icons-right">
+                <input id="amountInput" class="input" type="number" placeholder="150">
                 <span class="icon is-small is-left">
                     <i class="fas fa-dollar-sign"></i>
                 </span>
+                <span class="icon is-small is-right">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </span>
+                <p class="help is-danger"></p>
             </p>
         </div>
-        <span class="has-text-centered">Minimal amount: <b>9.37$</b></span>
+        <span class="has-text-centered">Minimal amount: <b id="minAmount" class="is-skeleton">00.00$</b></span>
 
         <article class="message mt-4">
             <div class="message-body tip">
@@ -98,7 +167,7 @@
             </div>
         </article>
 
-        <button class="button mt-5 is-outlined is-medium is-fullwidth is-primary" form="login-form" id="submit-button" type="submit">Continue to payment</button>
+        <button id="topupButton" class="button mt-5 is-outlined is-medium is-fullwidth is-primary">Continue to payment</button>
 
 
     </div>

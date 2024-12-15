@@ -7,3 +7,4 @@ djangorestframework-camel-case
 whitenoise
 django-filter
 gunicorn
+requests

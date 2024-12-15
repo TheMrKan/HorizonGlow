@@ -25,6 +25,11 @@
   color: hsla(348deg, 100%, 60%, 1);
 }
 
+.is-success {
+  border-color: hsla(153deg, 53%, 53%, 1);
+  color: hsla(153deg, 53%, 53%, 1);
+}
+
 .notification:hover {
   cursor: pointer;
   transition: .3s;

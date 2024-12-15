@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_filters',
     'users',
-    'products'
+    'products',
+    'payments'
 ]
 
 MIDDLEWARE = [
@@ -229,3 +230,6 @@ STORAGES = {
 WHITENOISE_MAX_AGE = 86400
 
 PRODUCT_FILE_MAX_AGE = timedelta(seconds=env.int("PRODUCT_FILE_MAX_AGE"))
+
+PAYMENT_SERVICE_API_KEY = env.str("PAYMENT_SERVICE_API_KEY")
+PAYMENT_MIN_AMOUNT = env.float("PAYMENT_MIN_AMOUNT")

@@ -84,3 +84,10 @@ function logout() {
         }
     });
 }
+
+function setFieldError(field, text=null) {
+    const active = text !== "" && text !== null;
+    field.find("input").toggleClass("is-danger", active);
+    field.find(".is-right").toggle(active);
+    field.find(".help").text(text);
+}

@@ -6,5 +6,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('users.urls')),
     path('api/', include('products.urls')),
+    path('api/payment/', include("payments.urls")),
     path('api/return/<int:code>/', return_code, name='return_code'),
 ]
