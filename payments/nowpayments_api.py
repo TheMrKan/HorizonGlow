@@ -1,5 +1,8 @@
 import requests
 from dataclasses import dataclass
+import json
+import hmac
+import hashlib
 
 
 class APIError(Exception):
@@ -49,3 +52,13 @@ def create_invoice(api_key: str,
 
     json = response.json()
     return CreatedInvoice(json["id"], json["invoice_url"])
+
+
+def is_ipn_sig_valid(np_secret_key: str, np_x_signature: str, message: dict) -> bool:
+    sorted_msg = json.dumps(message, separators=(',', ':'), sort_keys=True)
+    digest = hmac.new(
+        str(np_secret_key).encode(),
+        f'{sorted_msg}'.encode(),
+        hashlib.sha512)
+    signature = digest.hexdigest()
+    return signature == np_x_signature
