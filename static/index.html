@@ -16,18 +16,25 @@
         let categories = new Map();
         let loading = [];
         let loadedProducts = 0;
+        let categoriesSelector = null;
+        let currentFilter = 0;
 
         const observer = new IntersectionObserver((entries, observer) => {
-              if (loading.length > 0) {
-                return;
-              }
-
-              entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                  loadAdditionalCategories();
-                  observer.unobserve(entry.target); // Отключить наблюдение, если больше не нужно
+              for (let entry of entries) {
+                if (loading.length > 0 || currentFilter !== 0) {
+                    return;
                 }
-              });
+
+                if (entry.isIntersecting) {
+                    const id = $(entry.target).data("category-id");
+                    const categ = categories.get(id);
+
+                    if (!categ["isLoaded"]) {
+                        loadCategory(categ["id"], categ["name"], true);
+                    }
+                    observer.unobserve(entry.target); // Отключить наблюдение, если больше не нужно
+                }
+              }
             }, {
               root: null, // Отслеживать в области видимости окна
               threshold: 0.1 // Сработает, когда 10% элемента окажутся в области видимости
@@ -36,12 +43,17 @@
         $(document).ready(function() {
             loadProfile();
             loadCategories();
-        });
 
-        $(window).scroll(function() {
-            if ($(window).scrollTop() == $(document).height() - $(window).height()) {
-                loadAdditionalCategories();
-            }
+            $(window).scroll(function() {
+                if ($(window).scrollTop() == $(document).height() - $(window).height() && currentFilter === 0) {
+                    loadAdditionalCategories();
+                }
+            });
+
+            categoriesSelector = $("#categoriesSelect");
+            categoriesSelector.on("change", function () {
+                filterCategories(this.value);
+            });
         });
 
         function loadCategories() {
@@ -49,16 +61,14 @@
                 url: "/api/categories/",
                 dataType: "json",
                 success: function(data) {
-                    const selector = $("#categoriesSelect");
-                    selector.children().remove("[value!=0]");
+                    categoriesSelector.children().remove("[value!=0]");
 
                     let index = 0;
-                    let next = null;
                     for (let categ of data) {
                         categories.set(categ.id, categ);
                         categ["isLoaded"] = false;
                         categ["index"] = index++;
-                        selector.append($("<option>", {
+                        categoriesSelector.append($("<option>", {
                             value: categ.id,
                             text: categ.name,
                         }));
@@ -69,16 +79,10 @@
                         }
                         else {
                             let el = loadCategory(categ.id, categ.name, false);
-                            if (next == null) {
-                                next = el;
-                            }
+                            observer.observe(el[0]);
                         }
                     }
-                    selector.removeClass("is-skeleton");
-
-                    if (next != null) {
-                        observer.observe(next[0]);
-                    }
+                    categoriesSelector.removeClass("is-skeleton");
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     tryHandleAuthError(jqXHR);
@@ -131,19 +135,38 @@
 
             const initialProducts = loadedProducts;
             for (let [id, category] of categories) {
-                if (loadedProducts - initialProducts >= LOAD_PRODUCTS_COUNT) {
-                    observer.observe($(`#category-${id}`)[0]);
-                    break;
-                }
-
                 if (category["isLoaded"]) {
                     continue;
                 }
 
                 loadedProducts += category["productsCount"];
                 loadCategory(category["id"], category["name"], true);
+
+                if (loadedProducts - initialProducts >= LOAD_PRODUCTS_COUNT) {
+                    break;
+                }
             }
 
+        }
+
+        function filterCategories(target) {
+            target = Number(target);
+            currentFilter = target;
+
+            let elements = $("[id^='category-']");
+            if (target === 0) {
+                elements.show();
+                return;
+            }
+
+            elements.not(`#category-${target}`).hide();
+            elements.filter(`#category-${target}`).show();
+
+            let categ = categories.get(target);
+            if (!categ["isLoaded"]) {
+                console.log(categ);
+                loadCategory(categ["id"], categ["name"], true);
+            }
         }
 
         function getOrCreateCategoryElement(id) {
@@ -154,6 +177,7 @@
                 templ.innerHTML = $("#categoryTemplate").html();
                 element = $(templ);
                 element.attr("id", elemId);
+                element.data("category-id", id);
                 element.find(".productsBag").children().remove();
 
                 $("#categoriesBag").append(element);
