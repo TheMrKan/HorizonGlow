@@ -11,12 +11,37 @@
 </head>
 <body>
     <script>
-        const MIN_PRODUCTS_COUNT = 15;
-        categories = {};
+        const MIN_PRODUCTS_COUNT = 20;
+        const LOAD_PRODUCTS_COUNT = 10;
+        let categories = new Map();
+        let loading = [];
+        let loadedProducts = 0;
+
+        const observer = new IntersectionObserver((entries, observer) => {
+              if (loading.length > 0) {
+                return;
+              }
+
+              entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                  loadAdditionalCategories();
+                  observer.unobserve(entry.target); // Отключить наблюдение, если больше не нужно
+                }
+              });
+            }, {
+              root: null, // Отслеживать в области видимости окна
+              threshold: 0.1 // Сработает, когда 10% элемента окажутся в области видимости
+        });
 
         $(document).ready(function() {
             loadProfile();
             loadCategories();
+        });
+
+        $(window).scroll(function() {
+            if ($(window).scrollTop() == $(document).height() - $(window).height()) {
+                loadAdditionalCategories();
+            }
         });
 
         function loadCategories() {
@@ -27,25 +52,33 @@
                     const selector = $("#categoriesSelect");
                     selector.children().remove("[value!=0]");
 
-                    let productsCount = 0;
                     let index = 0;
+                    let next = null;
                     for (let categ of data) {
-                        categories[categ.id] = categ;
-                        //categ["isLoaded"] = false;
-                        categ["isLoaded"] = true;
+                        categories.set(categ.id, categ);
+                        categ["isLoaded"] = false;
                         categ["index"] = index++;
                         selector.append($("<option>", {
                             value: categ.id,
                             text: categ.name,
                         }));
 
-                        //if (productsCount < MIN_PRODUCTS_COUNT) {
-                            //productsCount += categ["productsCount"];
-                            //categ["isLoaded"] = true;
-                            loadCategory(categ.id, categ.name);
-                        //}
+                        if (loadedProducts < MIN_PRODUCTS_COUNT) {
+                            loadedProducts += categ["productsCount"];
+                            loadCategory(categ.id, categ.name, true);
+                        }
+                        else {
+                            let el = loadCategory(categ.id, categ.name, false);
+                            if (next == null) {
+                                next = el;
+                            }
+                        }
                     }
                     selector.removeClass("is-skeleton");
+
+                    if (next != null) {
+                        observer.observe(next[0]);
+                    }
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     tryHandleAuthError(jqXHR);
@@ -55,8 +88,13 @@
             });
         }
 
-        function loadCategory(id, name) {
+        function loadCategory(id, name, loadProducts) {
             const element = getOrCreateCategoryElement(id);    // должно создаваться синхронно, чтобы сохранялся порядок
+
+            if (!loadProducts) return element;
+
+            loading.push(id);
+            categories.get(id)["isLoaded"] = true;
             $.get({
                 url: `/api/products/?category=${id}`,
                 dataType: "json",
@@ -71,7 +109,7 @@
                         addProduct(id, product);
                     }
 
-                    if (Object.values(categories).every((val) => val.isLoaded)) {
+                    if (loading.length <= 1) {
                         $("#categoryTemplate").hide();
                     }
                 },
@@ -79,8 +117,33 @@
                     tryHandleAuthError(jqXHR);
 
                     showError(jqXHR);
+                },
+                complete: function() {
+                    loading.splice(loading.indexOf(id));
                 }
             });
+
+            return element;
+        }
+
+        function loadAdditionalCategories() {
+            if (loading.length > 0) return;
+
+            const initialProducts = loadedProducts;
+            for (let [id, category] of categories) {
+                if (loadedProducts - initialProducts >= LOAD_PRODUCTS_COUNT) {
+                    observer.observe($(`#category-${id}`)[0]);
+                    break;
+                }
+
+                if (category["isLoaded"]) {
+                    continue;
+                }
+
+                loadedProducts += category["productsCount"];
+                loadCategory(category["id"], category["name"], true);
+            }
+
         }
 
         function getOrCreateCategoryElement(id) {
