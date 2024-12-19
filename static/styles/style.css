@@ -72,7 +72,7 @@ body {
     .centered-box {
         width: 89%;
     }
-  }
+}
 
 @media screen and (min-width: 768px) {
     .header-centered {
@@ -91,3 +91,121 @@ body {
 }
 
 
+
+
+.footer-custom {
+
+}
+
+.footer-qrs {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 500 !important;
+    line-height: 1.8em !important;
+    font-size: 18px;
+}
+
+.footer-qr {
+    width: 50%;
+    display: flex;
+    align-self: flex-start;
+    justify-content: space-between;
+}
+
+.footer-qr:last-child {
+    flex-direction: row-reverse;
+}
+
+.footer-qr div {
+    flex-grow: 1;
+    display: flex;
+    padding: 0 2rem;
+}
+
+.footer-qr div a {
+    color: white;
+}
+
+.footer-qr:last-child div {
+    flex-direction: row-reverse;
+    text-align: right;
+}
+
+.footer-qrs .vertical-line {
+    position: absolute;
+    z-index: 100;
+    transform: translate(-50%, 0%);
+    left: 50%;
+    border-right: 2px solid white;
+    height: 120px;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 2.5rem;
+    margin-top: 1rem;
+    font-weight: 500 !important;
+    font-size: 18px;
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+}
+
+.footer-links a {
+    color: hsl(var(--bulma-primary-h), var(--bulma-primary-s), var(--bulma-primary-l)) !important;
+    text-align: center;
+
+}
+
+.footer-copyrights {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+    font-weight: 500 !important;
+    font-size: 14px;
+    color: hsl(0, 0%, 48%);
+    text-align: center;
+}
+
+@media screen and (max-width: 1215px) {
+    .footer-qrs {
+        font-size: 16px;
+    }
+}
+
+@media screen and (max-width: 873px) {
+    .footer-qr img {
+        display: none;
+    }
+
+    .footer-qrs .vertical-line {
+        height: 50px;
+    }
+}
+
+@media screen and (max-width: 635px) {
+    .footer-qrs {
+        gap: 1rem;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .footer-qr {
+        align-self: center;
+        width: auto;
+        text-align: center;
+    }
+
+    .footer-qr:last-child {
+        flex-direction: inherit;
+    }
+
+    .footer-qr:last-child div {
+        flex-direction: inherit;
+        text-align: inherit;
+    }
+
+    .footer-qrs .vertical-line {
+        display: none;
+    }
+}
