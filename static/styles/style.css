@@ -9,6 +9,8 @@ body {
     background-attachment: fixed;
     background-size: cover;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 :root {
@@ -49,10 +51,8 @@ body {
 }
 
 .centered-box {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .tip {
@@ -94,7 +94,24 @@ body {
 
 
 .footer-custom {
+    display: flex;
+    justify-content: center;
+    flex-grow: 1
+}
 
+.footer-custom .columns {
+    display: flex;
+    flex: 1;
+}
+
+.footer-custom .column {
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 0;
+}
+
+.footer-custom .box {
+    flex: 1;
 }
 
 .footer-qrs {
