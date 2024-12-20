@@ -18,6 +18,9 @@ body {
     --bulma-primary-h: 29deg;
     --bulma-primary-s: 100%;
     --bulma-primary-l: 42%;
+    --bulma-input-h: 0;
+    --bulma-input-s: 0%;
+    --bulma-input-background-l: 0%;
 }
 
 .mt-7 {
@@ -33,16 +36,26 @@ body {
 }
 
 .box {
-    --bulma-box-background-color: hsla(221, 14%, 9%, 0.8);
+    --bulma-box-background-color: hsla(0, 0%, 0%, 0.7);
 }
 
 .input {
-    background-color: hsla(var(--bulma-input-h),var(--bulma-input-s),calc(var(--bulma-input-background-l) + var(--bulma-input-background-l-delta)), 0.2);
+    background-color: hsla(0, 0%, var(--bulma-input-background-l-delta), 0.2);
+}
+
+.input, .select select {
+    background-color: hsla(0, 0%, var(--bulma-input-background-l-delta), 0.8);
 }
 
 .table {
     --bulma-table-background-color: rgba(0, 0, 0, 0);
     --bulma-table-cell-background-color: rgba(0, 0, 0, 0);
+}
+
+.button {
+    --bulma-button-h: 0;
+    --bulma-button-s: 0%;
+    --bulma-button-background-l: 0%;
 }
 
 .button.is-primary[disabled] {
@@ -61,9 +74,9 @@ body {
 }
 
 .load-more-button {
-    --bulma-control-border-width: 2px;
+    --bulma-control-border-width: 1px;
     --bulma-button-border-l: 55%;
-    background-color: hsla(var(--bulma-button-h), var(--bulma-button-s), calc(var(--bulma-button-background-l) + var(--bulma-button-background-l-delta)), 0.9)
+    background-color: hsla(0, 0%, var(--bulma-button-background-l-delta), 0.7)
 }
 
 @media screen and (max-width: 768px) {
