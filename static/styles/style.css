@@ -60,6 +60,12 @@ body {
     border-inline-start-color: hsl(var(--bulma-primary-h), var(--bulma-primary-s), var(--bulma-primary-l));
 }
 
+.load-more-button {
+    --bulma-control-border-width: 2px;
+    --bulma-button-border-l: 55%;
+    background-color: hsla(var(--bulma-button-h), var(--bulma-button-s), calc(var(--bulma-button-background-l) + var(--bulma-button-background-l-delta)), 0.9)
+}
+
 @media screen and (max-width: 768px) {
     .only-desktop {
       all: unset;

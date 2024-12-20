@@ -19,36 +19,9 @@
         let categoriesSelector = null;
         let currentFilter = 0;
 
-        const observer = new IntersectionObserver((entries, observer) => {
-              for (let entry of entries) {
-                if (loading.length > 0 || currentFilter !== 0) {
-                    return;
-                }
-
-                if (entry.isIntersecting) {
-                    const id = $(entry.target).data("category-id");
-                    const categ = categories.get(id);
-
-                    if (!categ["isLoaded"]) {
-                        loadCategory(categ["id"], categ["name"], true);
-                    }
-                    observer.unobserve(entry.target); // Отключить наблюдение, если больше не нужно
-                }
-              }
-            }, {
-              root: null, // Отслеживать в области видимости окна
-              threshold: 0.1 // Сработает, когда 10% элемента окажутся в области видимости
-        });
-
         $(document).ready(function() {
             loadProfile();
             loadCategories();
-
-            $(window).scroll(function() {
-                if ($(window).scrollTop() == $(document).height() - $(window).height() && currentFilter === 0) {
-                    loadAdditionalCategories();
-                }
-            });
 
             categoriesSelector = $("#categoriesSelect");
             categoriesSelector.on("change", function () {
@@ -79,7 +52,6 @@
                         }
                         else {
                             let el = loadCategory(categ.id, categ.name, false);
-                            observer.observe(el[0]);
                         }
                     }
                     categoriesSelector.removeClass("is-skeleton");
@@ -98,6 +70,7 @@
             if (!loadProducts) return element;
 
             loading.push(id);
+            element.show();
             categories.get(id)["isLoaded"] = true;
             $.get({
                 url: `/api/products/?category=${id}`,
@@ -147,6 +120,9 @@
                 }
             }
 
+            if (Array.from(categories.values()).every((c) => c["isLoaded"])) {
+                $("#loadMoreButton").hide();
+            }
         }
 
         function filterCategories(target) {
@@ -156,6 +132,7 @@
             let elements = $("[id^='category-']");
             if (target === 0) {
                 elements.show();
+                $("#loadMoreButton").toggle(!Array.from(categories.values()).every((c) => c["isLoaded"]));
                 return;
             }
 
@@ -164,9 +141,10 @@
 
             let categ = categories.get(target);
             if (!categ["isLoaded"]) {
-                console.log(categ);
                 loadCategory(categ["id"], categ["name"], true);
             }
+
+            $("#loadMoreButton").hide();
         }
 
         function getOrCreateCategoryElement(id) {
@@ -179,6 +157,7 @@
                 element.attr("id", elemId);
                 element.data("category-id", id);
                 element.find(".productsBag").children().remove();
+                element.hide();
 
                 $("#categoriesBag").append(element);
             }
@@ -356,7 +335,12 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
+
+                <button id="loadMoreButton" class="button is-fullwidth load-more-button mt-6 py-3" onclick="loadAdditionalCategories()">
+                    Load more...
+                </button>
             </div>
         </div>
     </div>
