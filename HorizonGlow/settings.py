@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'django_filters',
     'users',
     'products',
-    'payments'
+    'payments',
+    'content'
 ]
 
 MIDDLEWARE = [
