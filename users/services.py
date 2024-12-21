@@ -3,10 +3,10 @@ from .models import User
 
 class UserCredentialsManager:
     user: User
-    password: str
-    secret_phrase: str
+    password: str | None
+    secret_phrase: str | None
 
-    def __init__(self, user: User, password: str, secret_phrase: str):
+    def __init__(self, user: User, password: str | None, secret_phrase: str | None):
         self.user = user
         self.password = password
         self.secret_phrase = secret_phrase
@@ -27,9 +27,30 @@ class UserCredentialsManager:
 
         return self.user.secret_phrase.casefold() == self.secret_phrase.casefold()
 
-    def update_credentials(self, commit=True):
-        self.user.set_password(self.password)
-        self.user.secret_phrase = self.secret_phrase.casefold()
+    def check_credentials_partial(self) -> (bool, bool):
+        """
+        Сравнивает переданные данные с сохраненными в БД.
+        В отличие от check_credentials, сравниваться будут только not-None поля
+        :return:
+        """
+        password_valid = True
+        if self.password is not None:
+            if not self.user.check_password(self.password):
+                password_valid = False
+
+        phrase_valid = True
+        if self.secret_phrase is not None:
+            if self.user.secret_phrase:
+                phrase_valid = self.user.secret_phrase.casefold() == self.secret_phrase.casefold()
+
+        return password_valid, phrase_valid
+
+    def update_credentials(self, commit=True, partial=True):
+        if not partial or self.password:
+            self.user.set_password(self.password)
+
+        if not partial or self.secret_phrase:
+            self.user.secret_phrase = self.secret_phrase.casefold()
 
         if commit:
             self.user.save()

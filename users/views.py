@@ -59,6 +59,13 @@ class AccountView(APIView):
         serializer = AccountSerializer(request.user)
         return Response(serializer.data)
 
+    def post(self, request, format=None):
+        serializer = AccountSerializer(request.user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(data={}, status=status.HTTP_200_OK)
+
+
 
 class PurchasesView(ListAPIView):
     permission_classes = (permissions.IsAuthenticated,)

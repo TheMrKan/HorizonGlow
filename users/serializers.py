@@ -1,3 +1,4 @@
+from django.db.transaction import commit
 from rest_framework import serializers, status
 from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth import authenticate
@@ -6,7 +7,7 @@ from django.urls import reverse
 from .models import User
 from products.models import Product
 from products.services import ProductFileManager
-from users.services import UserCreator
+from users.services import UserCreator, UserCredentialsManager
 
 
 class AuthTokenSerializer(serializers.Serializer):
@@ -53,6 +54,16 @@ class AuthTokenSerializer(serializers.Serializer):
         return attrs
 
 
+def _validate_secret_phrase(secret_phrase):
+    if len(secret_phrase) < 3 or len(secret_phrase) > 15:
+        raise serializers.ValidationError(
+            "Secret phrase must be at least 3 characters long and less than 15 characters")
+
+    if not secret_phrase.isalpha():
+        raise serializers.ValidationError("Secret phrase must contain only alphabetic characters")
+    return secret_phrase
+
+
 class UserCredentialsSerializer(serializers.Serializer):
     username = serializers.CharField(
         label="Username",
@@ -68,7 +79,8 @@ class UserCredentialsSerializer(serializers.Serializer):
     secret_phrase = serializers.CharField(
         label="Secret Phrase",
         style={'input_type': 'password'},
-        write_only=True
+        write_only=True,
+        validators=[_validate_secret_phrase]
     )
     token = serializers.CharField(
         label="Token",
@@ -83,14 +95,6 @@ class UserCredentialsSerializer(serializers.Serializer):
             raise serializers.ValidationError(f"User with this name already exists")
         return value
 
-    def validate_secret_phrase(self, value: str):
-        if len(value) < 3 or len(value) > 15:
-            raise serializers.ValidationError("Secret phrase must be at least 3 characters long and less than 15 characters")
-
-        if not value.isalpha():
-            raise serializers.ValidationError("Secret phrase must contain only alphabetic characters")
-        return value
-
     def create(self, validated_data):
         try:
             user = UserCreator(validated_data["username"], validated_data["password"], validated_data["secret_phrase"]).create()
@@ -100,9 +104,32 @@ class UserCredentialsSerializer(serializers.Serializer):
 
 
 class AccountSerializer(serializers.ModelSerializer):
+    password_new = serializers.CharField(label="New password", write_only=True, validators=[validate_password])
+    secret_phrase_new = serializers.CharField(label="Secret Phrase", write_only=True, validators=[_validate_secret_phrase])
+
     class Meta:
         model = User
-        fields = ('username', 'balance')
+        fields = ('username', 'balance', 'password', 'password_new', 'secret_phrase', 'secret_phrase_new')
+        write_only_fields = ('password', 'secret_phrase')
+
+    def validate(self, attrs):
+        password = attrs.get("password")
+        secret_phrase = attrs.get("secret_phrase")
+        password_valid, phrase_valid = UserCredentialsManager(self.instance, password, secret_phrase).check_credentials_partial()
+        detail = {}
+        if not password_valid:
+            detail["password"] = "Incorrect password"
+        if not phrase_valid:
+            detail["secret_phrase"] = "Incorrect secret phrase"
+
+        if detail:
+            raise serializers.ValidationError(detail, code="incorrect_current")
+
+        return attrs
+
+    def update(self, instance, validated_data):
+        UserCredentialsManager(instance, validated_data.get("password_new"), validated_data.get("secret_phrase_new")).update_credentials(commit=True, partial=True)
+        return instance
 
 
 class PurchaseSerializer(serializers.ModelSerializer):
