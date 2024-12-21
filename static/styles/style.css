@@ -245,3 +245,23 @@ body {
         display: none;
     }
 }
+
+.profile-blocks {
+    display: flex;
+    justify-content: stretch;
+    width: 100%;
+    gap: 2rem;
+    --bulma-block-spacing: 0;
+}
+
+.profile-block {
+    flex: 1;
+    min-height: 300px;
+}
+
+@media screen and (max-width: 635px) {
+    .profile-blocks {
+        display: block;
+        --bulma-block-spacing: inherit;
+    }
+}
