@@ -18,8 +18,11 @@
         let loadedProducts = 0;
         let categoriesSelector = null;
         let currentFilter = 0;
+        let toTopButton = null;
 
         $(document).ready(function() {
+            toTopButton = $(".scroll-to-top-button").first();
+
             loadProfile();
             loadCategories();
 
@@ -28,6 +31,24 @@
                 filterCategories(this.value);
             });
         });
+
+        window.onscroll = function() {onScroll()};
+
+        function onScroll() {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                toTopButton.css("display", "");
+              } else {
+                toTopButton.css("display", "none");
+              }
+        }
+
+        function scrollToTop() {
+            toTopButton.trigger("mouseleave");
+
+            window.scrollTo({top: 0, behavior: 'smooth'});
+
+            toTopButton.trigger("mouseenter");
+        }
 
         function loadCategories() {
             $.get({
@@ -223,6 +244,12 @@
             <button class="button is-primary is-outlined is-rounded px-5" style="width: 8rem;">Buy for $15</button>
         </div>
     </div>
+</div>
+
+<div class="scroll-to-top-button" onclick="toTopButton.trigger('mouseleave'); scrollToTop()" style="display: none;">
+    <span class="icon" style="width: 100%; height: 100%; text-align: center; vertical-align: center; font-size: 32px;">
+        <i class="fas fa-arrow-up"></i>
+    </span>
 </div>
 
 <section class="section container pt-4 pb-2">

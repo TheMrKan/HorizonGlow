@@ -113,7 +113,28 @@ body {
     color: var(--bulma-primary-rgb);
 }
 
+.scroll-to-top-button {
+    display: block;
+    z-index: 99;
+    position: fixed;
+    bottom: 35px;
+    right: 20px;
+    border: dashed;
+    border-radius: 50%;
+    border-width: 1px;
+    border-color: var(--bulma-primary-rgb);
+    color: var(--bulma-primary-rgb);
+    width: 70px;
+    height: 70px;
+    background-color: hsla(0, 0%, 0%, 0.75);
+    box-shadow: 6px 6px 6px hsla(0, 0%, 0%, 0.5);
+    cursor: pointer;
+}
 
+.scroll-to-top-button:hover {
+    background-color: hsla(0, 0%, 0%, 0.95);
+    border: 1px solid;
+}
 
 @media screen and (max-width: 768px) {
     .only-desktop {
