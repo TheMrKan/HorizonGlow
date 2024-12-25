@@ -74,10 +74,46 @@ body {
 }
 
 .load-more-button {
-    --bulma-control-border-width: 1px;
-    --bulma-button-border-l: 55%;
-    background-color: hsla(0, 0%, var(--bulma-button-background-l-delta), 0.7)
+    --bulma-control-border-width: 2px;
+    border-color: var(--bulma-primary-rgb);
+    background-color: hsla(0, 0%, var(--bulma-button-background-l-delta), 0.6);
+    color: var(--bulma-primary-rgb);
+    width: 25%;
+    display: flex;
+    justify-self: center;
 }
+
+.buy-confirmation {
+    align-items: center;
+    flex-direction: row;
+    justify-content: center;
+    overflow: hidden;
+    position: fixed;
+    z-index: 150;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: 0;
+
+    background-color: hsla(0, 0%, 0%, 0.7);
+}
+
+.buy-confirmation .box {
+    flex-grow: 1;
+    margin: 3rem 1.5rem;
+    align-self: auto;
+    background-color: hsla(0, 0%, 0%, 0.8);
+    border-style: solid;
+    border-width: 1px;
+    border-color: hsla(var(--bulma-primary-h), var(--bulma-primary-s), var(--bulma-primary-l), 0.5);
+    max-width: 600px;
+}
+
+.buy-confirmation .title {
+    color: var(--bulma-primary-rgb);
+}
+
+
 
 @media screen and (max-width: 768px) {
     .only-desktop {
@@ -90,6 +126,10 @@ body {
 
     .centered-box {
         width: 89%;
+    }
+
+    .load-more-button {
+        width: 50%;
     }
 }
 
