@@ -1,0 +1,102 @@
+.seller-stats {
+    margin-top: 2rem;
+    margin-bottom: 2.5rem;
+}
+
+.seller-stats tr td:first-child {
+    width: 50%;
+    border-right: solid 1px var(--bulma-table-cell-border-color);
+}
+
+.seller-stats tr:nth-child(even) {
+    background-color: hsla(from var(--bulma-table-striped-row-even-background-color) h s l / 0.35) !important;
+}
+
+.product-layout {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+}
+
+.product-layout-left {
+    flex-basis: 35%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.product-layout-right {
+    flex-basis: 50%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.product-header {
+    line-height: 1.3;
+}
+
+.product-layout-left div, .product-layout-right div {
+    flex-basis: 0;
+    flex-grow: 1;
+    border-right: solid 1px hsla(0, 0%, 100%, 0.2)
+}
+
+.product-layout-left div:last-child {
+    border-right: none;
+}
+
+.product-layout-right div:nth-last-child(-n + 2) {
+    border-right: none;
+}
+
+.product-layout-right div:last-child {
+    flex-basis: 10%;
+}
+
+.product-layout-right div:not(:last-child) {
+    flex-basis: 18%;
+}
+
+.product-status {
+    padding: 0.2em 0.5em;
+    border: solid 1px;
+    border-radius: 100px;
+}
+
+.product-status-on-sale {
+    border-color: var(--bulma-primary);
+    color: var(--bulma-primary);
+}
+
+@media screen and (max-width: 873px) {
+    .product-layout-right div:has(> :is(.product-earn, .product-purchase)) {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .product-header {
+        display: none;
+    }
+
+    .product-layout {
+        flex-direction: column;
+        justify-content: stretch;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .product-layout-right, .product-layout-left {
+        flex: 1;
+        width: 100%;
+    }
+
+    .product-layout-right div, .product-layout-left div {
+        flex-basis: 0 !important;
+    }
+}

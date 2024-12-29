@@ -68,6 +68,18 @@ function loadProfile() {
             balance.text("$" + Number(profileBalance).toFixed(2));
             balance.removeClass("is-skeleton");
 
+            const isSeller = true; //data["isSeller"];
+            if (isSeller) {
+                const dropdown = $("#dropdown-menu .dropdown-content");
+                if (dropdown.length) {
+                    const divider = $("<hr class=\"dropdown-divider\" />");
+                    dropdown.find(".dropdown-divider").first().before(divider)
+                    divider.after(
+                        $('<a href="/seller" class="dropdown-item"><span class="icon"><i class="fas fa-store" aria-hidden="true"></i></span> Seller </a>')
+                    );
+                }
+            }
+
             document.dispatchEvent(onProfileLoaded);
         },
         error: function(jqXHR, textStatus, errorThrown) {

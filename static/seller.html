@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/styles/style.css">
+    <link rel="stylesheet" href="/static/styles/seller.css">
+    <script type="text/javascript" src="/static/js/jquery-3.7.1.min.js"></script>
+    <script type="text/javascript" src="/static/js/app.js"></script>
+    <title>Horizon Glow: Seller</title>
+</head>
+<body>
+
+<script>
+    $(document).ready(function () {
+        loadProfile();
+    });
+
+</script>
+
+<div id="addProductModal" class="custom-modal" style="display: none;">
+    <div class="box" style="display: flex; flex-direction: column; align-items: center;">
+        <h6 class="title has-text-centered is-5">New product</h6>
+
+        <div class="field" style="width: 100%; max-width: 500px; flex-grow: 1;">
+            <label class="label">Description</label>
+            <div class="control has-icons-left has-icons-right">
+                <input class="input" placeholder="Describe your product">
+                <span class="icon is-small is-left">
+                    <i class="fas fa-font"></i>
+                </span>
+                <span class="icon is-small is-right" style="display: none;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </span>
+            </div>
+            <p class="help is-danger"></p>
+        </div>
+
+        <div class="field" style="width: 100%; max-width: 500px; flex-grow: 1;">
+            <label class="label">Category</label>
+            <div class="control has-icons-left">
+                <div class="select is-fullwidth">
+                    <select>
+                        <option selected>Default category</option>
+                        <option>First category</option>
+                        <option>Second category</option>
+                    </select>
+                </div>
+                <div class="icon is-small is-left">
+                    <i class="fas fa-tag"></i>
+                </div>
+            </div>
+            <p class="help is-danger"></p>
+        </div>
+
+        <div style="display: flex; justify-content: stretch; gap: 2rem; max-width: 500px;">
+            <div class="field" style="flex-grow: 1; flex-basis: 0;">
+                <label class="label">Number</label>
+                <div class="control has-icons-left has-icons-right">
+                    <input class="input" placeholder="1234">
+                    <span class="icon is-small is-left">
+                    <i class="fas fa-hashtag"></i>
+                </span>
+                    <span class="icon is-small is-right" style="display: none;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </span>
+                </div>
+                <p class="help is-danger"></p>
+            </div>
+
+            <div class="field" style="flex-grow: 1; flex-basis: 0;">
+                <label class="label">Score</label>
+                <div class="control has-icons-left has-icons-right">
+                    <input class="input" placeholder="AA">
+                    <span class="icon is-small is-left">
+                    <i class="fas fa-star"></i>
+                </span>
+                    <span class="icon is-small is-right" style="display: none;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </span>
+                </div>
+                <p class="help is-danger"></p>
+            </div>
+        </div>
+
+        <div style="width: 100%; max-width: 500px; margin-bottom: 12px;">
+            <div class="field" style="flex-grow: 1; flex-basis: 0;">
+                <label class="label">Produced at</label>
+                <div class="control has-icons-left has-icons-right">
+                    <input class="input" type="date" placeholder="01/01">
+                    <span class="icon is-small is-left">
+                    <i class="fas fa-calendar-days"></i>
+                </span>
+                    <span class="icon is-small is-right" style="display: none;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </span>
+                </div>
+                <p class="help is-danger"></p>
+            </div>
+
+            <div class="field" style="flex-grow: 1; flex-basis: 0;">
+                <label class="label">Price</label>
+                <div class="control has-icons-left has-icons-right">
+                    <input class="input" placeholder="15.00">
+                    <span class="icon is-small is-left">
+                    <i class="fas fa-dollar-sign"></i>
+                </span>
+                    <span class="icon is-small is-right" style="display: none;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </span>
+                </div>
+                <p class="help is-danger"></p>
+            </div>
+        </div>
+
+        <div class="file has-name is-boxed mb-0" style="width: 100%; max-width: 500px;">
+            <label class="file-label" style="width: 100%;">
+                <input class="file-input" type="file" name="resume"/>
+                <span class="file-cta">
+                    <span class="file-icon">
+                        <i class="fas fa-upload"></i>
+                    </span>
+                    <span class="file-label"> Choose a file… </span>
+                </span>
+                <span class="file-name" style="width: 100%; max-width: none;"> my_product.zip </span>
+            </label>
+        </div>
+
+        <div class="mt-5" style="display: flex; justify-content: center; gap: 1rem; width: 100%; max-width: 500px;">
+            <button class="button is-outlined is-rounded px-5" style="color: var(--bulma-box-color); border-color: var(--bulma-box-color); width: 50%;">
+                <span class="icon is-small">
+                    <i class="fas fa-xmark"></i>
+                </span>
+                <span>Cancel</span>
+            </button>
+            <button class="button is-primary is-outlined is-rounded px-5" style="width: 50%">
+                <span class="icon is-small">
+                    <i class="fas fa-plus"></i>
+                </span>
+                <span>Add</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<section class="section container pt-4">
+    <div class="columns is-centered">
+        <div class="column is-12">
+            <div class="box py-1">
+                <div class="level">
+                    <div class="level-left">
+                        <div class="level-item is-mobile">
+                            <button onclick="location.href='/'"
+                                    class="button is-text is-size-5 has-text-weight-semi-bold has-text-primary is-rounded"
+                                    style="text-decoration: none">
+                                <span class="icon is-small">
+                                    <i class="fas fa-house"></i>
+                                </span>
+                                <span>Home</span>
+                            </button>
+                            <button onclick="location.href='/rules'"
+                                    class="button is-text is-size-5 has-text-info is-rounded"
+                                    style="text-decoration: none">
+                                <span class="icon is-small">
+                                    <i class="fas fa-book"></i>
+                                </span>
+                                <span>Rules</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="level-item header-centered">
+                        <span class="title is-4">HORIZON GLOW</span>
+                    </div>
+                    <div class="level-right">
+                        <div class="level-item">
+                            <span class="has-text-weight-bold mr-1 is-skeleton" id="balance">$38,70</span>
+                            <span class="icon mr-3">
+                                <i class="fas fa-wallet" aria-hidden="true"></i>
+                            </span>
+                            <div class="dropdown is-hoverable is-right">
+                                <div class="dropdown-trigger">
+                                    <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+                                        <span class="mr-2 is-skeleton" id="username">username</span>
+                                        <span class="icon is-small">
+                                        <i class="fas fa-user" aria-hidden="true"></i>
+                                    </span>
+                                    </button>
+                                </div>
+                                <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                                    <div class="dropdown-content pl-2">
+                                        <a href="/purchases" class="dropdown-item is-active"><span class="icon"><i
+                                            class="fas fa-basket-shopping mr-2" aria-hidden="true"></i></span> My
+                                            purchases </a>
+                                        <a href="/profile" class="dropdown-item"><span class="icon"><i
+                                            class="fas fa-user-pen mr-2" aria-hidden="true"></i></span> Edit profile
+                                        </a>
+                                        <a href="/topup" class="dropdown-item"><span class="icon"><i
+                                            class="fa-brands fa-bitcoin mr-2" aria-hidden="true"></i></span> Topup
+                                            balance </a>
+                                        <a href="#" class="dropdown-item"><span class="icon"><i
+                                            class="fas fa-comments mr-2" aria-hidden="true"></i></span> Support </a>
+                                        <hr class="dropdown-divider"/>
+                                        <a href="#" onclick="logout()" class="dropdown-item"><span class="icon"><i
+                                            class="fas fa-right-from-bracket" aria-hidden="true"></i></span> Logout </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pageContent">
+                <div class="box py-3 seller-stats">
+                        <h5 class="title is-size-5 has-text-white-ter has-text-weight-bold mb-4 is-fullwidth has-text-centered">Statistics</h5>
+                        <table class="table is-fullwidth is-striped seller-stats-table has-text-weight-bold">
+                            <tbody>
+                                <tr>
+                                    <td>On Sale</td>
+                                    <td>1000.00$</td>
+                                </tr>
+                                <tr>
+                                    <td>To pay</td>
+                                    <td>35.00$</td>
+                                </tr>
+                                <tr>
+                                    <td>Paid</td>
+                                    <td>2000.00$</td>
+                                </tr>
+                                <tr>
+                                    <td>Total Earned</td>
+                                    <td>2035.00$</td>
+                                </tr>
+                                <tr>
+                                    <td>Percent</td>
+                                    <td>30%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                </div>
+
+                <div id="addProductButton" class="box mt-4 mb-5 py-3 is-flex is-justify-content-center">
+                        <span class="has-text-primary is-size-5 has-text-weight-semibold">
+                            <span class="icon">
+                                <i class="fa-solid fa-plus"></i>
+                            </span>
+                            Add product
+                        </span>
+                </div>
+
+                <div class="box mb-4 py-2 product-header">
+                    <div class="product-layout">
+                        <div class="product-layout-left">
+                            <div>
+                                <span class="has-text-white-ter has-text-weight-bold">File name</span>
+                            </div>
+                            <div>
+                                <span class="has-text-white-ter has-text-weight-bold">Category name</span>
+                            </div>
+                        </div>
+                        <div class="product-layout-right">
+                            <div>
+                                <span class="has-text-white-ter has-text-weight-bold">Status</span>
+                            </div>
+                            <div class="">
+                                <span class="product-price has-text-white-ter has-text-weight-bold">Price</span>
+                            </div>
+                            <div>
+                                <span class="product-earn has-text-white-ter has-text-weight-bold">You earn</span>
+                            </div>
+                            <div>
+                                <span class="product-upload has-text-white-ter has-text-weight-bold">Upload<br>date</span>
+                            </div>
+                            <div>
+                                <span class="product-purchase has-text-white-ter has-text-weight-bold">Purchase<br>date</span>
+                            </div>
+                            <div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="purchasesBag">
+
+                    <div class="box my-2 py-2">
+                        <div class="product-layout">
+                            <div class="product-layout-left">
+                                <div>
+                                    <a href="http://192.168.137.1:8000">my_product.zip</a>
+                                </div>
+                                <div>
+                                    <span>Category name</span>
+                                </div>
+                            </div>
+                            <div class="product-layout-right">
+                                <div>
+                                    <span class="product-status product-status-on-sale">On sale</span>
+                                </div>
+                                <div>
+                                    <span class="product-price has-text-weight-bold">$25.00</span>
+                                </div>
+                                <div>
+                                    <span class="product-earn has-text-weight-bold">$21.00</span>
+                                </div>
+                                <div>
+                                    <span class="product-upload has-text-weight-bold">12/25</span>
+                                </div>
+                                <div>
+                                    <span class="product-purchase has-text-weight-bold">12/01</span>
+                                </div>
+                                <div>
+                                    <button class="productDeleteButton button is-danger is-outlined">
+                                        <span class="icon is-small">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section container mt-0 pt-0 mb-5 pb-0 footer-custom">
+    <div class="columns is-centered">
+        <div class="column is-12">
+            <div class="box mt-5">
+                <div class="footer-qrs">
+                    <div class="footer-qr">
+                        <a href="https://t.me/HORIZON_GLOW_TEAM" target="_blank">
+                            <img src="static/img/qr_tg_team.png" width="120" height="120"/>
+                        </a>
+                        <div>
+                            <a href="https://t.me/HORIZON_GLOW_TEAM" target="_blank">
+                                <span class="icon">
+                                    <i class="fa-brands fa-telegram"></i>
+                                </span>
+                                OUR CHANNEL:<br>
+                                @HORIZON_GLOW_TEAM
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="vertical-line"></div>
+
+                    <div class="footer-qr">
+                        <a href="https://t.me/HORIZON_GLOW_FEEDBACK" target="_blank">
+                            <img src="static/img/qr_tg_feedback.png" width="120" height="120"/>
+                        </a>
+                        <div>
+                            <a href="https://t.me/HORIZON_GLOW_FEEDBACK" target="_blank">
+                                    <span class="icon">
+                                        <i class="fa-brands fa-telegram"></i>
+                                    </span>
+                                OUR FEEDBACK:<br>
+                                @HORIZON_GLOW_FEEDBACK
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="footer-copyrights">
+                    <span>©2020-2025 Horizon Glow, All Rights Reserved.</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+</body>
+</html>

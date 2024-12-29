@@ -18,9 +18,18 @@ body {
     --bulma-primary-h: 29deg;
     --bulma-primary-s: 100%;
     --bulma-primary-l: 42%;
+    --bulma-danger-s: 100%;
+    --bulma-danger-l: 35%;
     --bulma-input-h: 0;
     --bulma-input-s: 0%;
     --bulma-input-background-l: 0%;
+}
+
+.level-center {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .mt-7 {
@@ -58,10 +67,11 @@ body {
     --bulma-button-background-l: 0%;
 }
 
-.button.is-primary[disabled] {
+.button.is-primary[disabled], .button.is-danger[disabled]{
     background-color: rgba(0, 0, 0, 0);
     opacity: 0.3;
 }
+
 
 .centered-box {
     margin-left: auto;
@@ -83,7 +93,8 @@ body {
     justify-self: center;
 }
 
-.buy-confirmation {
+.custom-modal {
+    display: flex;
     align-items: center;
     flex-direction: row;
     justify-content: center;
@@ -98,7 +109,7 @@ body {
     background-color: hsla(0, 0%, 0%, 0.7);
 }
 
-.buy-confirmation .box {
+.custom-modal .box {
     flex-grow: 1;
     margin: 3rem 1.5rem;
     align-self: auto;
@@ -109,8 +120,22 @@ body {
     max-width: 600px;
 }
 
-.buy-confirmation .title {
+.custom-modal .title {
     color: var(--bulma-primary-rgb);
+}
+
+#addProductButton {
+    outline-style: solid;
+    outline-width: 1px;
+    outline-color: hsla(var(--bulma-primary-h), var(--bulma-primary-s), var(--bulma-primary-l), 0.7);
+    box-shadow: 0 4px 20px hsla(var(--bulma-primary-h), var(--bulma-primary-s), var(--bulma-primary-l), 0.2);
+    cursor: pointer;
+}
+
+#addProductButton:hover {
+    outline-width: 2px;
+    --bulma-box-background-color: hsla(0, 0%, 0%, 0.9);
+    box-shadow: 0 4px 20px hsla(var(--bulma-primary-h), var(--bulma-primary-s), var(--bulma-primary-l), 0.4);
 }
 
 .scroll-to-top-button {
