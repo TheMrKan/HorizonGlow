@@ -109,7 +109,7 @@ class AccountSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'balance', 'password', 'password_new', 'secret_phrase', 'secret_phrase_new')
+        fields = ('username', 'balance', 'is_seller', 'password_new', 'secret_phrase', 'secret_phrase_new')
         write_only_fields = ('password', 'secret_phrase')
 
     def validate(self, attrs):
