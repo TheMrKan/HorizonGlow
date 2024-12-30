@@ -1,5 +1,8 @@
 from datetime import datetime
 
+from django.db.transaction import commit
+
+from seller.models import Seller
 from .models import Product, Category
 from users.models import User
 from django.db import transaction
@@ -9,6 +12,7 @@ from typing import List
 from django.conf import settings
 from django.utils import timezone
 import traceback
+from seller.services import SellerEconomyService
 
 
 class ProductBuyer:
@@ -22,6 +26,7 @@ class ProductBuyer:
 
     product: Product
     user: User
+    seller: Seller
 
     class InsufficientBalanceError(Exception):
         pass
@@ -47,12 +52,17 @@ class ProductBuyer:
             self.product.purchased_by = self.user
             self.product.purchased_at = timezone.now()
             self.user.balance -= self.product.price
+
+            SellerEconomyService(self.seller).on_product_purchased(self.product, commit=False)
+
             self.product.save()
             self.user.save()
+            self.seller.save()
 
     def __load_entities(self):
         self.product = Product.objects.get(id=self.product_id)
         self.user = User.objects.get(id=self.user_id)
+        self.seller = Seller.objects.get(pk=self.product.seller.id)
 
     def __assert_can_buy(self):
         if not ProductFileManager(self.product).has_file():

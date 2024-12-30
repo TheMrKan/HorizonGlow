@@ -215,7 +215,7 @@
                     contentType: false,
                     success: function(data) {
                         notify("Product has been successfully created.", "success", 5000);
-                        setTimeout(() => {window.location.reload();}, 1000);
+                        setTimeout(() => {window.location.reload();}, 500);
                         $("#addProductModal").hide();
                         $("#addProductButton").addClass("is-loading");
                     },
@@ -292,7 +292,7 @@
             success: function(data) {
                 if (!silent) {
                    notify("Product has been successfully deleted", "success", 5000);
-                   setTimeout(() => window.location.reload(), 1000);
+                   setTimeout(() => window.location.reload(), 500);
                 }
 
                 console.log(`Product ${productId} has been successfully deleted`)
