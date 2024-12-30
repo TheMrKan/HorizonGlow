@@ -121,3 +121,77 @@ div:has(> .product-no-data) {
         flex-basis: 0 !important;
     }
 }
+
+.add-product-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.add-product-box .field {
+    width: 100%;
+    max-width: 500px;
+    flex-grow: 1;
+}
+
+.add-product-box .horiz-fields {
+    display: flex;
+    justify-content: stretch;
+    gap: 2rem;
+    max-width: 500px;
+}
+
+@media screen and (max-width: 873px) {
+    .add-product-box .horiz-fields-desktop {
+        width: 100%;
+        max-width: 500px;
+        margin-bottom: 12px;
+    }
+}
+
+@media screen and (min-width: 873px) {
+    .add-product-box .horiz-fields-desktop {
+        display: flex;
+        justify-content: stretch;
+        gap: 2rem;
+        max-width: 500px;
+    }
+}
+
+.add-product-box .horiz-fields .field {
+    width: unset;
+    flex-basis: 0;
+}
+
+.add-product-box .file {
+    width: 100%;
+    max-width: 500px;
+}
+
+.add-product-box .file-label {
+    width: 100%;
+    text-align: center;
+}
+
+.add-product-box .file-name {
+    width: 100%;
+    max-width: none;
+}
+
+.add-product-box .add-product-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: 500px;
+}
+
+.add-product-box .cancel-button {
+    color: var(--bulma-box-color);
+    border-color: var(--bulma-box-color);
+    width: 50%;
+}
+
+.add-product-box .add-button {
+    width: 50%;
+}

@@ -62,7 +62,6 @@ class ProductAdminForm(ModelForm):
 
     def clean_file(self):
         new_file: FieldFile | None = self.cleaned_data.get("file", None)
-        print(f"VALIDATOR {new_file}")
 
         try:
             ProductFileManager.validate_file(None if new_file is False else new_file)

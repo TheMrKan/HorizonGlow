@@ -23,7 +23,7 @@ class SellerSerializer(ModelSerializer):
 
 
 class SellerProductSerializer(ModelSerializer):
-    file_name = CharField(read_only=True, source="file.name")
+    file_name = SerializerMethodField(read_only=True)
     file_url = SerializerMethodField(read_only=True)
     category_name = CharField(read_only=True, source='category.name')
     price = SerializerMethodField(read_only=True)
@@ -40,6 +40,11 @@ class SellerProductSerializer(ModelSerializer):
     # по умолчанию price возвращается как строка
     def get_price(self, product: Product):
         return float(product.price)
+
+    def get_file_name(self, product: Product):
+        if product.file:
+            return ProductFileManager.get_original_filename(product.file.name)
+        return None
 
     class Meta:
         model = Product

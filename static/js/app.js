@@ -102,9 +102,13 @@ function logout() {
     });
 }
 
-function setFieldError(field, text=null) {
+function setFieldError(field, text=null, originalText=null) {
     const active = text !== "" && text !== null;
     field.find("input").toggleClass("is-danger", active);
     field.find(".is-right").toggle(active);
     field.find(".help").text(text);
+
+    const color = active ? "var(--bulma-danger)" : "inherit";
+    field.find("span .file-label").css("color", color).text(active ? text : originalText);
+
 }

@@ -1,4 +1,6 @@
-from .models import Product
+from datetime import datetime
+
+from .models import Product, Category
 from users.models import User
 from django.db import transaction
 import os.path
@@ -66,6 +68,57 @@ class ProductBuyer:
             raise self.InsufficientBalanceError
 
 
+class ProductAccessManager:
+    product: Product
+    user: User
+
+    def __init__(self, product: Product, user: User):
+        self.product = product
+        self.user = user
+
+    def can_download(self) -> bool:
+        # в т. ч. обеспечивает доступ админ-аккаунтам
+        if self.user.has_perm('products.download_all_products'):
+            return True
+
+        # разрешаем селлеру и пользователю, купившему товар
+        if self.product.purchased_by == self.user or self.product.seller == self.user:
+            return True
+
+        return False
+
+    def can_update_file(self) -> bool:
+        # в т. ч. обеспечивает доступ админ-аккаунтам. Если доступ по перму, то можно обновлять существующий файл
+        if self.user.has_perm('products.upload_all_products'):
+            return True
+
+        # обновить может только селлер
+        if self.product.seller != self.user:
+            return False
+
+        # селлер не может обновить файл после первой загрузки (создания товара)
+        if ProductFileManager(self.product).has_file():
+            return False
+
+        return True
+
+    def can_delete_file(self) -> bool:
+        # в т. ч. обеспечивает доступ админ-аккаунтам
+        if self.user.has_perm('products.upload_all_products'):
+            return True
+
+        # удалять файл может только админ
+        return False
+
+    def can_delete_product(self) -> bool:
+        # в т. ч. обеспечивает доступ админ-аккаунтам
+        if self.user.has_perm('products.delete_all_products'):
+            return True
+
+        # удалить может только селлер
+        return self.product.seller == self.user
+
+
 class ProductFileManager:
     ALLOWED_EXTENSIONS = {'.zip', '.rar', '.7z'}
     MAX_FILE_SIZE_BYTES = 1024 * 1024 * 10    # 10 МБ
@@ -83,13 +136,18 @@ class ProductFileManager:
     class FileTooLargeError(Exception):
         pass
 
+    class DeleteNotAllowedError(Exception):
+        pass
+
     def __init__(self, product: Product):
         self.product = product
 
     @classmethod
-    def validate_file(cls, file: FieldFile | None, set_safe_name=True):
+    def validate_file(cls, file: FieldFile | None, set_safe_name=True, allow_delete=True):
         if file is None:
-            return
+            if not allow_delete:
+                raise cls.DeleteNotAllowedError
+            return None
 
         path, ext = os.path.splitext(file.name)
         if ext not in cls.ALLOWED_EXTENSIONS:
@@ -138,9 +196,9 @@ class ProductFileManager:
     def has_file(self):
         return bool(self.product.file) and self.product.file.storage.exists(self.product.file.name)
 
-    def update_file(self, new_file: FieldFile | None, commit=True, bypass_validation=False):
+    def update_file(self, new_file: FieldFile | None, commit=True, bypass_validation=False, allow_delete=True):
         if not bypass_validation:
-            self.validate_file(new_file)
+            self.validate_file(new_file, allow_delete=allow_delete)
 
         # удаление файла товара
         if not new_file:
@@ -157,9 +215,12 @@ class ProductFileManager:
             self.product.file.delete(save=False)
             self.product.file = None
 
-        # на случай, если файл с оригинальным названием сохранился по какой-то причине (например формой)
-        if not self.product.file and new_file.storage.exists(new_file_orig_name):
-            new_file.storage.delete(new_file_orig_name)
+        # InMemoryUploadedFile не имеет storage, соответственно проверять сохранение файла не нужно
+        # InMemoryUploadedFile используется при загрузке в панель, TemporaryUploadedFile при загрузке через админку
+        if hasattr(new_file, "storage"):
+            # на случай, если файл с оригинальным названием сохранился по какой-то причине (например формой)
+            if not self.product.file and new_file.storage.exists(new_file_orig_name):
+                new_file.storage.delete(new_file_orig_name)
 
         self.product.file = new_file
 
@@ -206,3 +267,65 @@ class ProductFileCleaner:
             except:
                 traceback.print_exc()
         return result
+
+
+class ProductCreator:
+    """
+    Сервис не проверяет валидность полей, кроме seller. Валидаторы должны быть вызваны из .validators ранее
+    """
+
+    class InvalidSellerError(Exception):
+        def __init__(self, *args):
+            super().__init__(*args)
+
+    seller: User
+    description: str
+    category: Category
+    number: str
+    score: str
+    produced_at: datetime
+    price: float
+
+    def __init__(self, seller: User, description: str, category: Category, number: str, score: str, produced_at: datetime, price: float):
+        self.seller = seller
+        self.description = description
+        self.category = category
+        self.number = number
+        self.score = score
+        self.produced_at = produced_at
+        self.price = price
+
+    def create(self) -> Product:
+        self.assert_seller_valid()
+
+        product = Product(seller=self.seller, description=self.description, category=self.category,
+                          number=self.number, score=self.score, produced_at=self.produced_at, price=self.price)
+        product.save()
+        return product
+
+    def assert_seller_valid(self):
+        if not self.seller.is_seller:
+            raise self.InvalidSellerError("User is not a seller")
+
+
+class ProductDeleter:
+    product: Product
+
+    class AlreadyBoughtError(Exception):
+        def __init__(self):
+            super().__init__("Can't delete purchased product")
+
+    def __init__(self, product: Product):
+        self.product = product
+
+    def delete(self):
+        self.assert_can_be_deleted()
+
+        # на всякий случай явно удаляем файл
+        ProductFileManager(self.product).update_file(None, commit=True, bypass_validation=True)
+
+        self.product.delete()
+
+    def assert_can_be_deleted(self):
+        if self.product.purchased_by:
+            raise self.AlreadyBoughtError()

@@ -17,6 +17,7 @@
         loadProfile();
         loadStats();
         loadProducts();
+        loadCategoriesToModal();
     });
 
     document.addEventListener(
@@ -102,7 +103,7 @@
         const uploadString = ('0' + (upload.getMonth() + 1)).slice(-2) + '/' + ('0' + upload.getDate()).slice(-2);
         element.find(".product-upload").text(uploadString);
 
-        const button = element.find(".product-delete").removeClass("is-loading");
+        const button = element.find(".product-delete").removeClass("is-loading").click(() => deleteProduct(product["id"]));
         if (product["purchasedAt"] !== null) {
             button.attr("disabled", true);
         }
@@ -110,16 +111,208 @@
         $("#productsBag").append(element);
     }
 
+    function openModal() {
+        const descriptionField = $("#addProductDescription");
+        const cetegoryField = $("#addProductCetegory");
+        const numberField = $("#addProductNumber");
+        const scoreField = $("#addProductScore");
+        const producedField = $("#addProductProduced");
+        const priceField = $("#addProductPrice");
+        const fileField = $("#addProductFile");
+
+        for (let field of [descriptionField, numberField, scoreField, producedField, priceField, fileField]) {
+            if (field === fileField) {
+                setFieldError(field, null, "Choose a file…");
+            } else {
+                setFieldError(field);
+            }
+        }
+
+        $("#addProductCategory select option[selected]").attr("selected", null);
+        $("#addProductCategory select option").first().attr("selected", true);
+        $("#addProductModal input").val("");
+        $("#addProductModal").show();
+        updateFileName("");
+    }
+
+    function loadCategoriesToModal() {
+        $.get({
+            url: "/api/categories/",
+            success: function(data) {
+                const select = $("#addProductCategory select");
+                for (let categ of data) {
+                    select.append($(`<option value="${categ["id"]}">${categ["name"]}</option>`));
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                tryHandleAuthError(jqXHR);
+                showError(jqXHR);
+            }
+        })
+    }
+
+    function updateFileName(override = null) {
+        const field = $("#addProductFile");
+
+        let filename;
+        if (override === null) {
+            filename = field.find("input")[0].files[0]?.name ?? "";
+        }
+        else {
+            filename = override;
+        }
+        field.find(".file-name").text(filename);
+    }
+
+    function createProduct() {
+        const descriptionField = $("#addProductDescription");
+        const categoryField = $("#addProductCategory");
+        const numberField = $("#addProductNumber");
+        const scoreField = $("#addProductScore");
+        const producedField = $("#addProductProduced");
+        const priceField = $("#addProductPrice");
+        const fileField = $("#addProductFile");
+
+        for (let field of [descriptionField, numberField, scoreField, producedField, priceField, fileField]) {
+            if (field === fileField) {
+                setFieldError(field, null, "Choose a file…");
+            }
+            else {
+                setFieldError(field);
+            }
+        }
+
+        for (let field of [descriptionField, numberField, scoreField, producedField, priceField, fileField]) {
+            const val = field.find("input").val();
+            if (val === null || String(val).trim() === "") {
+                setFieldError(field, "This field is required");
+                return;
+            }
+        }
+
+        const postData = {
+            "description": descriptionField.find("input").val(),
+            "category": categoryField.find("select option:selected").val(),
+            "number": numberField.find("input").val(),
+            "score": scoreField.find("input").val(),
+            "producedAt": producedField.find("input").val(),
+            "price": priceField.find("input").val(),
+        }
+
+        $.post({
+            url: "/api/products/",
+            dataType: "json",
+            data: postData,
+            success: function(data) {
+                const productId = data["id"];
+                let formData = new FormData();
+                formData.append("file", fileField.find("input")[0].files[0]);
+                $.ajax({
+                    url: `/api/products/${productId}/upload/`,
+                    method: "PUT",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(data) {
+                        notify("Product has been successfully created.", "success", 5000);
+                        setTimeout(() => {window.location.reload();}, 1000);
+                        $("#addProductModal").hide();
+                        $("#addProductButton").addClass("is-loading");
+                    },
+
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        try {
+                            let errors = JSON.parse(jqXHR.responseText);
+                            if ("detail" in errors) {
+                                setFieldError(fileField, errors['detail']);
+                            }
+
+                        } catch (e) {
+                            console.error("Failed to parse JSON error: " + e);
+                            console.error("Response: " + jqXHR.responseText);
+                            notify("An internal error occured during the file upload. Please, try again.", "danger")
+                        }
+
+                        deleteProduct(productId, true);
+                    }
+                })
+            },
+
+            error: function (jqXHR, textStatus, errorThrown) {
+                tryHandleAuthError(jqXHR);
+                if (jqXHR.status === 403) {
+                    window.location.href = "/";
+                    return;
+                }
+
+                if (jqXHR.status === 400) {
+                    try {
+                        let errors = JSON.parse(jqXHR.responseText);
+                        if ("detail" in errors) {
+                            showError(jqXHR);
+                            return;
+                        }
+
+                        if ("description" in errors) {
+                            setFieldError(descriptionField, errors["description"]);
+                        }
+                        if ("category" in errors) {
+                            setFieldError(categoryField, errors["category"]);
+                        }
+                        if ("number" in errors) {
+                            setFieldError(numberField, errors["number"]);
+                        }
+                        if ("score" in errors) {
+                            setFieldError(scoreField, errors["score"]);
+                        }
+                        if ("producedAt" in errors) {
+                            setFieldError(producedField, errors["producedAt"]);
+                        }
+                        if ("price" in errors) {
+                            setFieldError(priceField, errors["price"]);
+                        }
+
+                    } catch (e) {
+                        console.error("Failed to parse JSON error: " + e);
+                        console.error("Response: " + jqXHR.responseText);
+                        notify("An internal error occured during the request. Please, try again.", "danger")
+                    }
+                }
+                else {
+                    showError(jqXHR);
+                }
+            },
+        })
+    }
+
+    function deleteProduct(productId, silent=false) {
+        $.ajax({
+            url: `/api/products/${productId}/`,
+            method: "DELETE",
+            success: function(data) {
+                if (!silent) {
+                   notify("Product has been successfully deleted", "success", 5000);
+                   setTimeout(() => window.location.reload(), 1000);
+                }
+
+                console.log(`Product ${productId} has been successfully deleted`)
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                tryHandleAuthError(jqXHR);
+                showError(jqXHR);
+            },
+        })
+    }
+
 </script>
 
 <div id="addProductModal" class="custom-modal" style="display: none;">
-    <div class="box" style="display: flex; flex-direction: column; align-items: center;">
+    <div class="box add-product-box">
         <h6 class="title has-text-centered is-5">New product</h6>
-
-        <div class="field" style="width: 100%; max-width: 500px; flex-grow: 1;">
+        <div id="addProductDescription" class="field">
             <label class="label">Description</label>
             <div class="control has-icons-left has-icons-right">
-                <input class="input" placeholder="Describe your product">
+                <input class="input" maxlength="400" placeholder="Describe your product">
                 <span class="icon is-small is-left">
                     <i class="fas fa-font"></i>
                 </span>
@@ -130,14 +323,11 @@
             <p class="help is-danger"></p>
         </div>
 
-        <div class="field" style="width: 100%; max-width: 500px; flex-grow: 1;">
+        <div id="addProductCategory" class="field">
             <label class="label">Category</label>
             <div class="control has-icons-left">
                 <div class="select is-fullwidth">
-                    <select>
-                        <option selected>Default category</option>
-                        <option>First category</option>
-                        <option>Second category</option>
+                    <select name="category">
                     </select>
                 </div>
                 <div class="icon is-small is-left">
@@ -147,11 +337,11 @@
             <p class="help is-danger"></p>
         </div>
 
-        <div style="display: flex; justify-content: stretch; gap: 2rem; max-width: 500px;">
-            <div class="field" style="flex-grow: 1; flex-basis: 0;">
+        <div class="horiz-fields">
+            <div id="addProductNumber" class="field">
                 <label class="label">Number</label>
                 <div class="control has-icons-left has-icons-right">
-                    <input class="input" placeholder="1234">
+                    <input class="input" maxlength="4" placeholder="1234">
                     <span class="icon is-small is-left">
                     <i class="fas fa-hashtag"></i>
                 </span>
@@ -162,10 +352,10 @@
                 <p class="help is-danger"></p>
             </div>
 
-            <div class="field" style="flex-grow: 1; flex-basis: 0;">
+            <div id="addProductScore" class="field">
                 <label class="label">Score</label>
                 <div class="control has-icons-left has-icons-right">
-                    <input class="input" placeholder="AA">
+                    <input class="input" maxlength="2" placeholder="AA">
                     <span class="icon is-small is-left">
                     <i class="fas fa-star"></i>
                 </span>
@@ -177,8 +367,8 @@
             </div>
         </div>
 
-        <div style="width: 100%; max-width: 500px; margin-bottom: 12px;">
-            <div class="field" style="flex-grow: 1; flex-basis: 0;">
+        <div class="horiz-fields-desktop">
+            <div id="addProductProduced" class="field">
                 <label class="label">Produced at</label>
                 <div class="control has-icons-left has-icons-right">
                     <input class="input" type="date" placeholder="01/01">
@@ -192,7 +382,7 @@
                 <p class="help is-danger"></p>
             </div>
 
-            <div class="field" style="flex-grow: 1; flex-basis: 0;">
+            <div id="addProductPrice" class="field">
                 <label class="label">Price</label>
                 <div class="control has-icons-left has-icons-right">
                     <input class="input" placeholder="15.00">
@@ -207,33 +397,34 @@
             </div>
         </div>
 
-        <div class="file has-name is-boxed mb-0" style="width: 100%; max-width: 500px;">
-            <label class="file-label" style="width: 100%;">
-                <input class="file-input" type="file" name="resume"/>
+        <div id="addProductFile" class="file has-name is-boxed mb-0">
+            <label class="file-label">
+                <input class="file-input" type="file" onchange="updateFileName();"/>
                 <span class="file-cta">
                     <span class="file-icon">
                         <i class="fas fa-upload"></i>
                     </span>
                     <span class="file-label"> Choose a file… </span>
                 </span>
-                <span class="file-name" style="width: 100%; max-width: none;"> my_product.zip </span>
+                <span class="file-name"></span>
             </label>
         </div>
 
-        <div class="mt-5" style="display: flex; justify-content: center; gap: 1rem; width: 100%; max-width: 500px;">
-            <button class="button is-outlined is-rounded px-5" style="color: var(--bulma-box-color); border-color: var(--bulma-box-color); width: 50%;">
+        <div class="mt-5 add-product-buttons">
+            <button class="button is-outlined is-rounded px-5 cancel-button" onclick="$('#addProductModal').hide();">
                 <span class="icon is-small">
                     <i class="fas fa-xmark"></i>
                 </span>
                 <span>Cancel</span>
             </button>
-            <button class="button is-primary is-outlined is-rounded px-5" style="width: 50%">
+            <button class="button is-primary is-outlined is-rounded px-5 add-button" onclick="createProduct()">
                 <span class="icon is-small">
                     <i class="fas fa-plus"></i>
                 </span>
                 <span>Add</span>
             </button>
         </div>
+
     </div>
 </div>
 
@@ -333,7 +524,7 @@
                         </table>
                 </div>
 
-                <div id="addProductButton" class="box mt-4 mb-5 py-3 is-flex is-justify-content-center">
+                <div id="addProductButton" class="box mt-4 mb-5 py-3 is-flex is-justify-content-center" onclick="openModal();">
                         <span class="has-text-primary is-size-5 has-text-weight-semibold">
                             <span class="icon">
                                 <i class="fa-solid fa-plus"></i>

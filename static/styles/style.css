@@ -20,6 +20,7 @@ body {
     --bulma-primary-l: 42%;
     --bulma-danger-s: 100%;
     --bulma-danger-l: 35%;
+    --bulma-danger: hsl(var(--bulma-danger-h), var(--bulma-danger-s), var(--bulma-danger-l));
     --bulma-input-h: 0;
     --bulma-input-s: 0%;
     --bulma-input-background-l: 0%;
@@ -100,7 +101,7 @@ body {
     justify-content: center;
     overflow: hidden;
     position: fixed;
-    z-index: 150;
+    z-index: 90;
     bottom: 0;
     left: 0;
     right: 0;

@@ -1,3 +1,4 @@
+from django.db.transaction import commit
 from rest_framework import viewsets, mixins, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -5,7 +6,7 @@ from rest_framework.renderers import BaseRenderer
 from utils.exceptions import APIException
 from .models import Category, Product
 from .serializers import CategorySerializer, ProductSerializer
-from .services import ProductBuyer, ProductFileManager
+from .services import ProductBuyer, ProductFileManager, ProductAccessManager, ProductDeleter
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet, NumberFilter
 from django.http.response import FileResponse
 import os.path
@@ -42,21 +43,30 @@ class CanDownload(permissions.BasePermission):
         if not isinstance(product, Product):
             raise TypeError("Unsupported object type: %s" % type(product))
 
-        # в т. ч. обеспечивает доступ админ-аккаунтам
-        if request.user.has_perm('products.download_all_products'):
-            return True
-
-        if product.purchased_by == request.user or product.seller == request.user:
-            return True
+        return ProductAccessManager(product, request.user).can_download()
 
 
-class ProductViewSet(viewsets.ReadOnlyModelViewSet):
+class CanUpdateFile(permissions.BasePermission):
+    def has_object_permission(self, request, view, product: Product):
+        if not isinstance(product, Product):
+            raise TypeError("Unsupported object type: %s" % type(product))
+
+        return ProductAccessManager(product, request.user).can_update_file()
+
+
+class ProductViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateModelMixin, mixins.DestroyModelMixin):
     permission_classes = (permissions.IsAuthenticated, )
 
     queryset = Product.available.all()
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = ProductFilterSet
+
+    # Product.objects.all() для метода DELETE
+    def get_queryset(self):
+        if self.action == "destroy":
+            return Product.objects.all()
+        return super().get_queryset()
 
     @action(detail=True, methods=['post'])
     def buy(self, request, pk=None):
@@ -95,3 +105,30 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
         response['Content-Disposition'] = 'attachment; filename="%s"' % filename
 
         return response
+
+    @action(detail=True,
+            methods=['put'],
+            queryset=Product.objects.all(),
+            permission_classes=(*permission_classes, CanUpdateFile))
+    def upload(self, request, pk=None):
+        product: Product = self.get_object()
+
+        file = request.FILES.get('file')
+        try:
+            ProductFileManager(product).update_file(file, commit=True, bypass_validation=False, allow_delete=ProductAccessManager(product, request.user).can_delete_file())
+            return Response(data={}, status=status.HTTP_202_ACCEPTED)
+        except ProductFileManager.InvalidFileTypeError as e:
+            raise APIException(detail=str(e), code="invalid_file_type", status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+        except ProductFileManager.FileTooLargeError as e:
+            raise APIException(detail=str(e), code="file_too_large", status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
+        except ProductFileManager.DeleteNotAllowedError as e:
+            raise APIException(detail=str(e), code="delete_not_allowed", status=status.HTTP_400_BAD_REQUEST)
+
+    def perform_create(self, serializer):
+        serializer.save(seller=self.request.user)
+
+    def perform_destroy(self, instance):
+        try:
+            ProductDeleter(instance).delete()
+        except ProductDeleter.AlreadyBoughtError as e:
+            raise APIException(str(e), code="already_bought", status=status.HTTP_409_CONFLICT)
