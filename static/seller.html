@@ -15,7 +15,100 @@
 <script>
     $(document).ready(function () {
         loadProfile();
+        loadStats();
+        loadProducts();
     });
+
+    document.addEventListener(
+        "profileLoaded",
+        (e) => $("#menu-dropdown-seller").addClass("is-active"),
+        false
+    )
+
+    function loadStats() {
+        $.get({
+            url: "/api/seller/",
+            success: function (data) {
+                $("#statsOnSale").text(`${Number(data["onSale"]).toFixed(2)}$`);
+                $("#statsToPay").text(`${Number(data["toPay"]).toFixed(2)}$`);
+                $("#statsPaid").text(`${Number(data["paid"]).toFixed(2)}$`);
+                $("#statsEarned").text(`${Number(data["totalEarned"]).toFixed(2)}$`);
+                $("#statsPercent").text(`${Number(data["percent"])}%`);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                tryHandleAuthError(jqXHR);
+                if (jqXHR.status === 403) {
+                    window.location.href = "/";
+                }
+
+                showError(jqXHR);
+            },
+        })
+    }
+
+    function loadProducts() {
+        $.get({
+            url: "/api/seller/products/",
+            success: function (data) {
+                for (let product of data) {
+                    addProduct(product);
+                }
+
+                $("#sellerProductTemplate").hide();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                tryHandleAuthError(jqXHR);
+                if (jqXHR.status === 403) {
+                    window.location.href = "/";
+                }
+
+                showError(jqXHR);
+            },
+        })
+    }
+
+    function addProduct(product) {
+        const element = $("#sellerProductTemplate").clone();
+        element.attr("id", null);
+
+        element.find(".is-skeleton").removeClass("is-skeleton");
+
+        if (product["fileUrl"] === null) {
+            element.find(".product-file").replaceWith($('<div class="product-no-data"></div>'))
+        }
+        else {
+            element.find(".product-file").attr("href", product["fileUrl"]).text(product["fileName"]);
+        }
+        element.find(".product-category").text(product["categoryName"]);
+
+        let status = "sold";
+        let statusText = "Sold"
+        if (product["purchasedAt"] === null) {
+            status = "on-sale";
+            statusText = "On Sale";
+            element.find(".product-purchase").replaceWith($('<div class="product-purchase product-no-data"></div>'));
+        }
+        else {
+            const purchased = new Date(product["purchasedAt"]);
+            const purchasedString = ('0' + (purchased.getMonth() + 1)).slice(-2) + '/' + ('0' + purchased.getDate()).slice(-2);
+            element.find(".product-purchase").text(purchasedString);
+        }
+        element.find(".product-status").addClass(`product-status-${status}`).text(statusText);
+
+        element.find(".product-price").text("$" + Number(product["price"]).toFixed(2));
+        element.find(".product-earn").text("$" + Number(product["earn"]).toFixed(2));
+
+        const upload = new Date(product["addedAt"]);
+        const uploadString = ('0' + (upload.getMonth() + 1)).slice(-2) + '/' + ('0' + upload.getDate()).slice(-2);
+        element.find(".product-upload").text(uploadString);
+
+        const button = element.find(".product-delete").removeClass("is-loading");
+        if (product["purchasedAt"] !== null) {
+            button.attr("disabled", true);
+        }
+
+        $("#productsBag").append(element);
+    }
 
 </script>
 
@@ -189,7 +282,7 @@
                                 </div>
                                 <div class="dropdown-menu" id="dropdown-menu" role="menu">
                                     <div class="dropdown-content pl-2">
-                                        <a href="/purchases" class="dropdown-item is-active"><span class="icon"><i
+                                        <a href="/purchases" class="dropdown-item"><span class="icon"><i
                                             class="fas fa-basket-shopping mr-2" aria-hidden="true"></i></span> My
                                             purchases </a>
                                         <a href="/profile" class="dropdown-item"><span class="icon"><i
@@ -218,23 +311,23 @@
                             <tbody>
                                 <tr>
                                     <td>On Sale</td>
-                                    <td>1000.00$</td>
+                                    <td id="statsOnSale"></td>
                                 </tr>
                                 <tr>
                                     <td>To pay</td>
-                                    <td>35.00$</td>
+                                    <td id="statsToPay"></td>
                                 </tr>
                                 <tr>
                                     <td>Paid</td>
-                                    <td>2000.00$</td>
+                                    <td id="statsPaid"></td>
                                 </tr>
                                 <tr>
                                     <td>Total Earned</td>
-                                    <td>2035.00$</td>
+                                    <td id="statsEarned"></td>
                                 </tr>
                                 <tr>
                                     <td>Percent</td>
-                                    <td>30%</td>
+                                    <td id="statsPercent"></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -253,10 +346,10 @@
                     <div class="product-layout">
                         <div class="product-layout-left">
                             <div>
-                                <span class="has-text-white-ter has-text-weight-bold">File name</span>
+                                <span class="product-file has-text-white-ter has-text-weight-bold">File name</span>
                             </div>
                             <div>
-                                <span class="has-text-white-ter has-text-weight-bold">Category name</span>
+                                <span class="product-category has-text-white-ter has-text-weight-bold">Category name</span>
                             </div>
                         </div>
                         <div class="product-layout-right">
@@ -280,36 +373,36 @@
                     </div>
                 </div>
 
-                <div id="purchasesBag">
+                <div id="productsBag">
 
-                    <div class="box my-2 py-2">
+                    <div id="sellerProductTemplate" class="box my-2 py-2">
                         <div class="product-layout">
                             <div class="product-layout-left">
                                 <div>
-                                    <a href="http://192.168.137.1:8000">my_product.zip</a>
+                                    <a class="product-file is-skeleton">product_file.ext</a>
                                 </div>
                                 <div>
-                                    <span>Category name</span>
+                                    <span class="product-category is-skeleton">Category name</span>
                                 </div>
                             </div>
                             <div class="product-layout-right">
                                 <div>
-                                    <span class="product-status product-status-on-sale">On sale</span>
+                                    <span class="product-status is-skeleton">Status</span>
                                 </div>
                                 <div>
-                                    <span class="product-price has-text-weight-bold">$25.00</span>
+                                    <span class="product-price has-text-weight-bold is-skeleton">$00.00</span>
                                 </div>
                                 <div>
-                                    <span class="product-earn has-text-weight-bold">$21.00</span>
+                                    <span class="product-earn has-text-weight-bold is-skeleton">$00.00</span>
                                 </div>
                                 <div>
-                                    <span class="product-upload has-text-weight-bold">12/25</span>
+                                    <span class="product-upload has-text-weight-bold is-skeleton">00/00</span>
                                 </div>
                                 <div>
-                                    <span class="product-purchase has-text-weight-bold">12/01</span>
+                                    <span class="product-purchase has-text-weight-bold is-skeleton">00/00</span>
                                 </div>
                                 <div>
-                                    <button class="productDeleteButton button is-danger is-outlined">
+                                    <button class="product-delete button is-danger is-outlined is-loading">
                                         <span class="icon is-small">
                                             <i class="fa-solid fa-trash-can"></i>
                                         </span>

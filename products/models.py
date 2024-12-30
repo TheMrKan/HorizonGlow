@@ -60,7 +60,8 @@ class Product(models.Model):
                 fields=['-purchased_at'],
                 name='file_not_null_not_empty_idx',
                 condition=models.Q(file__isnull=False) & ~models.Q(file='')
-            )    # для очистки файлов
+            ),    # для очистки файлов
+            models.Index(fields=['seller'])
         ]
 
     def __str__(self):

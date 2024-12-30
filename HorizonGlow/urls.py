@@ -8,5 +8,6 @@ urlpatterns = [
     path('api/', include('products.urls')),
     path('api/payment/', include("payments.urls")),
     path('api/content/', include("content.urls")),
+    path('api/seller/', include("seller.urls")),
     path('api/return/<int:code>/', return_code, name='return_code'),
 ]
