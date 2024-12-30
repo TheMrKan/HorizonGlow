@@ -3,13 +3,20 @@ from users.models import User
 from content.models import ContentModel
 from products.models import Product
 from django.db.models import Sum
+from django.db.utils import IntegrityError
 
 
 def get_or_create_seller(user: User):
     if hasattr(user, 'seller'):
         return user.seller
 
-    return SellerCreator(user).create()
+    try:
+        return SellerCreator(user).create()
+    # IntegrityError = Key already exists. При первом открытии панели селлера два запроса выполняются параллельно,
+    # из-за чего селлер может добавиться в базу после проверки hasattr(user, 'seller').
+    # ни один уровень изоляции не исключает эту аномалию, поэтому просто запрашиваем объект из БД
+    except IntegrityError:
+        return user.seller
 
 
 class SellerCreator:
@@ -22,6 +29,7 @@ class SellerCreator:
         self.user.seller = Seller()
         self.user.seller.percent = self.get_default_percent()
         self.user.seller.save()
+        return self.user.seller
 
     @staticmethod
     def get_default_percent() -> float:
