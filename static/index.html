@@ -229,6 +229,7 @@
             confirmation.css("display", "flex");
 
             $("#confirmationProductDescription").text('"' + product.description + '"');
+            $("#confirmationProductPrice").text(`Buy for ${Number(product.price)}$`);
             confirmation.find("button").first().click(() => confirmation.css("display", "none"));
             confirmation.find("button").last().click(() => { confirmation.css("display", "none"); buyProduct(product.id) });
         }
@@ -241,7 +242,7 @@
         <span>You are going to buy <b id="confirmationProductDescription">"Product description Product description"</b>.<br> Are you sure?</span>
         <div class="mt-5" style="display: flex; justify-content: center; gap: 1rem;">
             <button class="button is-outlined is-rounded px-5" style="color: var(--bulma-box-color); border-color: var(--bulma-box-color); width: 8rem;">Cancel</button>
-            <button class="button is-primary is-outlined is-rounded px-5" style="width: 8rem;">Buy for $15</button>
+            <button class="button is-primary is-outlined is-rounded px-5" style="width: 8rem;" id="confirmationProductPrice"></button>
         </div>
     </div>
 </div>
