@@ -55,13 +55,13 @@ class SellerEconomyService:
     def __init__(self, seller: Seller):
         self.seller = seller
 
-    def get_earn(self, product: Product):
-        return product.price * (100 - self.seller.percent) / 100
+    def get_earn(self, product: Product) -> float:
+        return float(product.price) * (100 - float(self.seller.percent)) / 100
 
     def on_product_purchased(self, product: Product, commit=True):
         earn = self.get_earn(product)
-        self.seller.total_earned += earn
-        self.seller.to_pay += earn
+        self.seller.total_earned = float(self.seller.total_earned) + earn
+        self.seller.to_pay = float(self.seller.to_pay) + earn
 
         if commit:
             self.seller.save()
