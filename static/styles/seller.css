@@ -95,7 +95,7 @@ div:has(> .product-no-data) {
 }
 
 @media screen and (max-width: 873px) {
-    .product-layout-right div:has(> :is(.product-earn, .product-purchase)) {
+    .product-layout-right div:has(> :is(.product-earn, .product-upload)) {
         display: none !important;
     }
 }
