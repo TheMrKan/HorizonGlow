@@ -103,7 +103,7 @@
         const uploadString = ('0' + (upload.getMonth() + 1)).slice(-2) + '/' + ('0' + upload.getDate()).slice(-2);
         element.find(".product-upload").text(uploadString);
 
-        const button = element.find(".product-delete").removeClass("is-loading").click(() => deleteProduct(product["id"]));
+        const button = element.find(".product-delete").removeClass("is-loading").click(() => requestDeleteProduct(product["id"]));
         if (product["purchasedAt"] !== null) {
             button.attr("disabled", true);
         }
@@ -285,6 +285,14 @@
         })
     }
 
+    function requestDeleteProduct(productId) {
+        $("#deleteConfirmation").show();
+        $("#deleteConfirmationButton").click(() => {
+            $("#deleteConfirmation").hide();
+            deleteProduct(productId);
+        });
+    }
+
     function deleteProduct(productId, silent=false) {
         $.ajax({
             url: `/api/products/${productId}/`,
@@ -305,6 +313,19 @@
     }
 
 </script>
+
+<div id="deleteConfirmation" class="custom-modal" style="display: none;">
+    <div class="box has-text-centered">
+        <h6 class="title has-text-centered is-5">Confirmation</h6>
+        <span>You are going to delete a product.<br> Are you sure?</span>
+        <div class="mt-5" style="display: flex; justify-content: center; gap: 1rem;">
+            <button class="button is-outlined is-rounded px-5"
+                    style="color: var(--bulma-box-color); border-color: var(--bulma-box-color); width: 8rem;" onclick="$('#deleteConfirmation').hide();">Cancel
+            </button>
+            <button id="deleteConfirmationButton" class="button is-danger is-outlined is-rounded px-5" style="width: 8rem;">Delete</button>
+        </div>
+    </div>
+</div>
 
 <div id="addProductModal" class="custom-modal" style="display: none;">
     <div class="box add-product-box">
