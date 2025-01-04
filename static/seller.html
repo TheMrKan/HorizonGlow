@@ -47,10 +47,17 @@
         })
     }
 
-    function loadProducts() {
+    function loadProducts(query = "") {
+        let url = "/api/seller/products/";
+        if (query !== "") {
+            url += "?" + query;
+        }
+
         $.get({
-            url: "/api/seller/products/",
+            url: url,
             success: function (data) {
+                $("#productsBag").children().remove();
+
                 for (let product of data) {
                     addProduct(product);
                 }
@@ -98,6 +105,8 @@
 
         element.find(".product-price").text("$" + Number(product["price"]).toFixed(2));
         element.find(".product-earn").text("$" + Number(product["earn"]).toFixed(2));
+
+        element.find(".product-score").text(product["score"]);
 
         const upload = new Date(product["addedAt"]);
         const uploadString = ('0' + (upload.getMonth() + 1)).slice(-2) + '/' + ('0' + upload.getDate()).slice(-2);
@@ -568,7 +577,10 @@
                             <div>
                                 <span class="has-text-white-ter has-text-weight-bold">Status</span>
                             </div>
-                            <div class="">
+                            <div>
+                                <span class="product-price has-text-white-ter has-text-weight-bold">Score</span>
+                            </div>
+                            <div>
                                 <span class="product-price has-text-white-ter has-text-weight-bold">Price</span>
                             </div>
                             <div>
@@ -585,44 +597,48 @@
                     </div>
                 </div>
 
-                <div id="productsBag">
-
-                    <div id="sellerProductTemplate" class="box my-2 py-2">
-                        <div class="product-layout">
-                            <div class="product-layout-left">
-                                <div>
-                                    <a class="product-file is-skeleton">product_file.ext</a>
-                                </div>
-                                <div>
-                                    <span class="product-category is-skeleton">Category name</span>
-                                </div>
+                <div id="sellerProductTemplate" class="box my-2 py-2">
+                    <div class="product-layout">
+                        <div class="product-layout-left">
+                            <div>
+                                <a class="product-file is-skeleton">product_file.ext</a>
                             </div>
-                            <div class="product-layout-right">
-                                <div>
-                                    <span class="product-status is-skeleton">Status</span>
-                                </div>
-                                <div>
-                                    <span class="product-price has-text-weight-bold is-skeleton">$00.00</span>
-                                </div>
-                                <div>
-                                    <span class="product-earn has-text-weight-bold is-skeleton">$00.00</span>
-                                </div>
-                                <div>
-                                    <span class="product-upload has-text-weight-bold is-skeleton">00/00</span>
-                                </div>
-                                <div>
-                                    <span class="product-purchase has-text-weight-bold is-skeleton">00/00</span>
-                                </div>
-                                <div>
-                                    <button class="product-delete button is-danger is-outlined is-loading">
+                            <div>
+                                <span class="product-category is-skeleton">Category name</span>
+                            </div>
+                        </div>
+                        <div class="product-layout-right">
+                            <div>
+                                <span class="product-status is-skeleton">Status</span>
+                            </div>
+                            <div>
+                                <span class="product-score has-text-weight-bold is-skeleton">AA</span>
+                            </div>
+                            <div>
+                                <span class="product-price has-text-weight-bold is-skeleton">$00.00</span>
+                            </div>
+                            <div>
+                                <span class="product-earn has-text-weight-bold is-skeleton">$00.00</span>
+                            </div>
+                            <div>
+                                <span class="product-upload has-text-weight-bold is-skeleton">00/00</span>
+                            </div>
+                            <div>
+                                <span class="product-purchase has-text-weight-bold is-skeleton">00/00</span>
+                            </div>
+                            <div>
+                                <button class="product-delete button is-danger is-outlined is-loading">
                                         <span class="icon is-small">
                                             <i class="fa-solid fa-trash-can"></i>
                                         </span>
-                                    </button>
-                                </div>
+                                </button>
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div id="productsBag">
+
                 </div>
             </div>
         </div>

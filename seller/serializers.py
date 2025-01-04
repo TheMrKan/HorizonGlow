@@ -48,6 +48,6 @@ class SellerProductSerializer(ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ("id", "file_name", "file_url", "category_name", "price", "earn", "added_at", "purchased_at")
-        read_only_fields = ("id", "file_name", "file_url", "category_name", "price", "earn", "added_at", "purchased_at")
+        fields = ("id", "file_name", "file_url", "category_name", "score", "price", "earn", "added_at", "purchased_at")
+        read_only_fields = ("id", "file_name", "file_url", "category_name", "score", "price", "earn", "added_at", "purchased_at")
 
