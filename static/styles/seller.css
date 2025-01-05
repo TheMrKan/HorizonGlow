@@ -195,3 +195,15 @@ div:has(> .product-no-data) {
 .add-product-box .add-button {
     width: 50%;
 }
+
+.filter-dropdown-status {
+    --bulma-dropdown-menu-min-width: 7rem;
+}
+
+.filter-dropdown-status .dropdown-content {
+    text-align: right;
+}
+
+.filter-dropdown-status .dropdown-item {
+    padding-inline-end: 1rem;
+}

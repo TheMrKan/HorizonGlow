@@ -61,7 +61,8 @@ class Product(models.Model):
                 name='file_not_null_not_empty_idx',
                 condition=models.Q(file__isnull=False) & ~models.Q(file='')
             ),    # для очистки файлов
-            models.Index(fields=['seller'])
+            models.Index(fields=['seller', 'purchased_by', "-added_at"]),    # для фильтров в селлер панели
+            models.Index(fields=['seller', "purchased_by", "-purchased_at"])    # для фильтров в селлер панели
         ]
 
     def __str__(self):

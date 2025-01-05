@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from .services import get_or_create_seller
 from .serializers import SellerSerializer, SellerProductSerializer
 from products.models import Product
+from itertools import chain, islice
 
 
 class IsSeller(permissions.BasePermission):
@@ -31,4 +32,13 @@ class SellerProductsView(ListAPIView):
         return context
 
     def get_queryset(self):
-        return Product.objects.filter(seller=self.request.user).order_by('-added_at').all()
+        base_query = Product.objects.filter(seller=self.request.user)
+        on_sale_query = base_query.filter(purchased_by__isnull=True).order_by("-added_at")
+        sold_query = base_query.filter(purchased_by__isnull=False).order_by("-purchased_at")
+
+        if self.request.query_params.get("status") == "on_sale":
+            return on_sale_query.all()
+        if self.request.query_params.get("status") == "sold":
+            return sold_query.all()[:50]
+
+        return islice(chain(on_sale_query.all(), sold_query.all()), 50)

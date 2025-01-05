@@ -26,6 +26,8 @@
         false
     )
 
+    let cachedProductsResponses = {};
+
     function loadStats() {
         $.get({
             url: "/api/seller/",
@@ -48,6 +50,11 @@
     }
 
     function loadProducts(query = "") {
+        if (cachedProductsResponses[query] !== undefined) {
+            loadProductsSuccess(cachedProductsResponses[query]);
+            return;
+        }
+
         let url = "/api/seller/products/";
         if (query !== "") {
             url += "?" + query;
@@ -55,14 +62,9 @@
 
         $.get({
             url: url,
-            success: function (data) {
-                $("#productsBag").children().remove();
-
-                for (let product of data) {
-                    addProduct(product);
-                }
-
-                $("#sellerProductTemplate").hide();
+            success: function(data) {
+                cachedProductsResponses[query] = data;
+                loadProductsSuccess(data);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 tryHandleAuthError(jqXHR);
@@ -73,6 +75,16 @@
                 showError(jqXHR);
             },
         })
+    }
+
+    function loadProductsSuccess(data) {
+        $("#productsBag").children().remove();
+
+        for (let product of data) {
+            addProduct(product);
+        }
+
+        $("#sellerProductTemplate").hide();
     }
 
     function addProduct(product) {
@@ -319,6 +331,25 @@
                 showError(jqXHR);
             },
         })
+    }
+
+    function filterStatus(filter) {
+        let query = "";
+        if (filter === 1) {
+            query = "status=on_sale"
+        }
+        else if (filter === 2) {
+            query = "status=sold"
+        }
+
+        $("#productsBag").children().remove();
+        $("#sellerProductTemplate").show();
+        loadProducts(query);
+
+        $("#statusFilterDropdown .is-active").removeClass("is-active");
+        $(`#statusFilterDropdown a:nth-child(${filter+1})`).addClass("is-active");
+
+        $("#statusFilter .icon").toggleClass("has-text-primary", filter > 0);
     }
 
 </script>
@@ -575,7 +606,23 @@
                         </div>
                         <div class="product-layout-right">
                             <div>
-                                <span class="has-text-white-ter has-text-weight-bold">Status</span>
+                                <div id="statusFilter" class="dropdown is-hoverable is-right" style="">
+                                    <div class="dropdown-trigger">
+                                        <button aria-haspopup="true" aria-controls="statusFilterDropdown" class="has-text-weight-bold has-text-white-ter">
+                                            <span>Status</span>
+                                            <span class="icon is-small ml-1">
+                                                <i class="fas fa-filter" aria-hidden="true"></i>
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div class="dropdown-menu filter-dropdown-status" id="statusFilterDropdown" role="menu">
+                                        <div class="dropdown-content">
+                                            <a onclick="filterStatus(0)" id="statusFilterAny" class="dropdown-item is-active has-text-weight-bold"> Any </a>
+                                            <a onclick="filterStatus(1)" id="statusFilterOnSale" class="dropdown-item has-text-weight-bold" > On Sale </a>
+                                            <a onclick="filterStatus(2)" id="statusFilterSold" class="dropdown-item has-text-weight-bold"> Sold </a>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div>
                                 <span class="product-price has-text-white-ter has-text-weight-bold">Score</span>
