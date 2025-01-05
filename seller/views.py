@@ -32,12 +32,22 @@ class SellerProductsView(ListAPIView):
         return context
 
     def get_queryset(self):
+        category_id = self.request.query_params.get("category_id")
+
         base_query = Product.objects.filter(seller=self.request.user)
-        on_sale_query = base_query.filter(purchased_by__isnull=True).order_by("-added_at")
-        sold_query = base_query.filter(purchased_by__isnull=False).order_by("-purchased_at")
+
+        on_sale_query = base_query.filter(purchased_by__isnull=True)
+        if category_id:
+            on_sale_query = on_sale_query.filter(category_id=category_id)
+        on_sale_query = on_sale_query.order_by("-added_at")
+
+        sold_query = base_query.filter(purchased_by__isnull=False)
+        if category_id:
+            sold_query = sold_query.filter(category_id=category_id)
+        sold_query = sold_query.order_by("-purchased_at")
 
         if self.request.query_params.get("status") == "on_sale":
-            return on_sale_query.all()
+            return on_sale_query
         if self.request.query_params.get("status") == "sold":
             return sold_query.all()[:50]
 

@@ -17,7 +17,7 @@
         loadProfile();
         loadStats();
         loadProducts();
-        loadCategoriesToModal();
+        loadCategories();
     });
 
     document.addEventListener(
@@ -27,6 +27,8 @@
     )
 
     let cachedProductsResponses = {};
+    let filterStatusValue = null;
+    let filterCategoryValue = null;
 
     function loadStats() {
         $.get({
@@ -156,13 +158,16 @@
         updateFileName("");
     }
 
-    function loadCategoriesToModal() {
+    function loadCategories() {
         $.get({
             url: "/api/categories/",
             success: function(data) {
                 const select = $("#addProductCategory select");
+                const categoryFilter = $("#categoryFilterDropdown .dropdown-content");
+
                 for (let categ of data) {
                     select.append($(`<option value="${categ["id"]}">${categ["name"]}</option>`));
+                    categoryFilter.append($(`<a data-category="${categ["id"]}" class="dropdown-item has-text-weight-bold">${categ["name"]}</a>`).click(() => filterCategory(categ["id"])));
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
@@ -333,23 +338,46 @@
         })
     }
 
-    function filterStatus(filter) {
-        let query = "";
-        if (filter === 1) {
-            query = "status=on_sale"
+    function filterStatus(value) {
+        filterStatusValue = value > 0 ? value : null;
+
+        filter(filterStatusValue, filterCategoryValue);
+
+        $("#statusFilterDropdown .is-active").removeClass("is-active");
+        $(`#statusFilterDropdown a:nth-child(${value+1})`).addClass("is-active");
+
+        $("#statusFilter .icon").toggleClass("has-text-primary", value > 0);
+    }
+
+    function filterCategory(value) {
+        filterCategoryValue = value;
+
+        filter(filterStatusValue, filterCategoryValue);
+
+        $("#categoryFilterDropdown .is-active").removeClass("is-active");
+        if (value !== null) {
+            $(`#categoryFilterDropdown a[data-category=${value}]`).addClass("is-active");
         }
-        else if (filter === 2) {
-            query = "status=sold"
+        else {
+            $(`#categoryFilterDropdown a:first`).addClass("is-active");
+        }
+
+        $("#categoryFilter .icon").toggleClass("has-text-primary", value != null);
+    }
+
+    function filter(status, categoryId) {
+        const params = {};
+
+        if (status !== null) {
+            params["status"] = status === 1 ? "on_sale" : "sold";
+        }
+        if (categoryId !== null) {
+            params["category_id"] = categoryId;
         }
 
         $("#productsBag").children().remove();
         $("#sellerProductTemplate").show();
-        loadProducts(query);
-
-        $("#statusFilterDropdown .is-active").removeClass("is-active");
-        $(`#statusFilterDropdown a:nth-child(${filter+1})`).addClass("is-active");
-
-        $("#statusFilter .icon").toggleClass("has-text-primary", filter > 0);
+        loadProducts($.param(params));
     }
 
 </script>
@@ -601,7 +629,21 @@
                                 <span class="product-file has-text-white-ter has-text-weight-bold">File name</span>
                             </div>
                             <div>
-                                <span class="product-category has-text-white-ter has-text-weight-bold">Category name</span>
+                                <div id="categoryFilter" class="dropdown is-hoverable is-right" style="">
+                                    <div class="dropdown-trigger">
+                                        <button aria-haspopup="true" aria-controls="categoryFilterDropdown" class="has-text-weight-bold has-text-white-ter">
+                                            <span>Category</span>
+                                            <span class="icon is-small ml-1">
+                                                <i class="fas fa-filter" aria-hidden="true"></i>
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div class="dropdown-menu filter-dropdown-category" id="categoryFilterDropdown" role="menu">
+                                        <div class="dropdown-content">
+                                            <a onclick="filterCategory(null)" id="statusFilterAny" class="dropdown-item is-active has-text-weight-bold"> Any category </a>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="product-layout-right">
