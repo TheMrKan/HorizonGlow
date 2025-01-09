@@ -70,7 +70,7 @@ function loadProfile() {
 
             const isSeller = data["isSeller"];
             if (isSeller) {
-                const dropdown = $("#dropdown-menu .dropdown-content");
+                const dropdown = $("#header-user-dropdown-menu .dropdown-content");
                 if (dropdown.length) {
                     const divider = $("<hr class=\"dropdown-divider\" />");
                     dropdown.find(".dropdown-divider").first().before(divider)

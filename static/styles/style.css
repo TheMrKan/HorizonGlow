@@ -24,6 +24,10 @@ body {
     --bulma-input-h: 0;
     --bulma-input-s: 0%;
     --bulma-input-background-l: 0%;
+    --color-news-h: 327;
+    --color-news-s: 79%;
+    --color-news-l: 48%;
+    --color-news-hsl: hsl(var(--color-news-h), var(--color-news-s), var(--color-news-l))
 }
 
 .level-center {
@@ -71,6 +75,72 @@ body {
 .button.is-primary[disabled], .button.is-danger[disabled]{
     background-color: rgba(0, 0, 0, 0);
     opacity: 0.3;
+}
+
+.button.is-news {
+    color: var(--color-news-hsl) !important;
+    border-color: var(--color-news-hsl) !important;
+}
+
+#menu-dropdown {
+    --bulma-dropdown-menu-min-width: 12rem;
+}
+
+#menu-dropdown .dropdown-menu {
+    padding: 0;
+}
+
+#menu-dropdown .dropdown-trigger button {
+    min-width: var(---bulma-dropdown-menu-min-width);
+    justify-content: flex-start;
+}
+
+#menu-dropdown .dropdown-trigger button .icon {
+    transition: opacity 0.3s ease;
+    position: absolute;
+    left: 1rem;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+#menu-dropdown .dropdown-trigger button span:last-child {
+    margin-left: 1.75rem;
+}
+
+#menu-dropdown .dropdown-trigger button .icon:nth-child(1) {
+    opacity: 1;
+}
+
+#menu-dropdown .dropdown-trigger button .icon:nth-child(2) {
+    opacity: 0;
+}
+
+#menu-dropdown:hover .dropdown-trigger button .icon:nth-child(1) {
+    opacity: 0;
+}
+
+#menu-dropdown:hover .dropdown-trigger button .icon:nth-child(2) {
+    opacity: 1;
+}
+
+#menu-dropdown .dropdown-content {
+    background-color: hsla(0, 0%, 0%, 0);
+    gap: 1rem;
+}
+
+#menu-dropdown .dropdown-content .button {
+    text-decoration: none;
+    --bulma-button-padding-horizontal: 0.5em;
+    background-color: hsla(0, 0%, calc(var(--bulma-button-background-l-delta)*3), 0.95);
+    width: 100%;
+    border: 2px solid hsl(var(--bulma-info-h), var(--bulma-info-s), var(--bulma-info-l));
+    justify-content: flex-start;
+    margin-bottom: 0.25rem;
+}
+
+#menu-dropdown .dropdown-content span {
+    margin-inline-start: 0;
+    margin-inline-end: 0;
 }
 
 
