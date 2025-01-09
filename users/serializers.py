@@ -40,7 +40,7 @@ class AuthTokenSerializer(serializers.Serializer):
 
         if username and password and secret_phrase:
             user = authenticate(request=self.context.get("request"),
-                                username=username,
+                                username=username.lower(),    # имя пользователя должно быть не чувствительно к регистру
                                 password=password,
                                 secret_phrase=secret_phrase)
 
@@ -87,9 +87,11 @@ class UserCredentialsSerializer(serializers.Serializer):
         read_only=True
     )
 
-    def validate_username(self, value):
+    def validate_username(self, value: str):
         if len(value) < 4:
             raise serializers.ValidationError("Username must be at least 4 characters long")
+
+        value = value.lower()    # имя пользователя должно быть не чувствительно к регистру
 
         if UserCreator(value, "", "").is_user_exists():
             raise serializers.ValidationError(f"User with this name already exists")
