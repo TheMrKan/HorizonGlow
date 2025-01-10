@@ -394,3 +394,24 @@ body {
         --bulma-block-spacing: inherit;
     }
 }
+
+.article-header {
+    display: flex;
+}
+
+.article-title {
+    flex-grow: 1;
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+}
+
+.main-page-article {
+
+}
+
+.main-page-article:hover {
+    background-color: hsl(from var(--bulma-box-background-color) h s l / 0.95);
+    outline: 1px solid var(--bulma-border);
+    cursor: pointer;
+}

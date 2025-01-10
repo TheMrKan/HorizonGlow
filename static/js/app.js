@@ -112,3 +112,11 @@ function setFieldError(field, text=null, originalText=null) {
     field.find("span .file-label").css("color", color).text(active ? text : originalText);
 
 }
+
+function toDateUS(date) {
+    return ('0' + (date.getMonth() + 1)).slice(-2) + '/' + ('0' + date.getDate()).slice(-2);
+}
+
+function toDateUSFull(date) {
+    return toDateUS(date) + "/" + date.getFullYear();
+}

@@ -26,6 +26,7 @@
 
             loadProfile();
             loadCategories();
+            loadArticle();
 
             categoriesSelector = $("#categoriesSelect");
             categoriesSelector.on("change", function () {
@@ -235,6 +236,31 @@
             confirmation.find("button").last().click(() => { confirmation.css("display", "none"); buyProduct(product.id) });
         }
 
+        function loadArticle() {
+            $.get({
+                url: "/api/news/",
+                dataType: "json",
+                success: function(data) {
+                    const articleElement = $("#article");
+                    if (data.length === 0) {
+                        articleElement.hide();
+                        return;
+                    }
+
+                    const article = data[0];
+                    articleElement.find(".is-skeleton").removeClass("is-skeleton");
+
+                    articleElement.find(".article-title > span:nth-child(2)").addClass("has-text-white-ter").text(article.title);
+                    articleElement.find(".article-date").addClass("has-text-grey-dark").text(toDateUSFull(new Date(article.createdAt)));
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    tryHandleAuthError(jqXHR);
+
+                    showError(jqXHR);
+                }
+            });
+        }
+
 </script>
 
 <div id="buyConfirmation" class="custom-modal" style="display: none;">
@@ -259,24 +285,22 @@
         <div class="column is-12">
             <div class="pageContent">
 
-                <div class="box">
-                    <div class="level is-mobile" style="--bulma-level-item-spacing: 0.25rem; align-items: flex-start;">
-                        <div class="level-left" style="justify-content: flex-start; align-items: flex-start;">
-                            <div class="level-item mr-2" style="align-items: flex-start;">
-                                <span class="icon is-size-4 has-text-info mr-3">
-                                    <i class="fas fa-newspaper"></i>
-                                </span>
-                                <span class="is-size-6 has-text-white-ter has-text-weight-bold">Lorem ipsum dolor sit amet!</span>
-                            </div>
-                            <div class="level-item" style="align-items: flex-start; text-align: left;">
-                                <a>Show more...</a>
-                            </div>
-                        </div>
-                        <div class="level-right">
-                            <div class="level-item">
-                                <span class="is-size-6 has-text-grey-dark has-text-weight-bold">01/09/2025</span>
-                            </div>
-                        </div>
+                <div id="article" class="box main-page-article" onclick="window.location.href = '/news'">
+                    <div class="article-header">
+                        <span class="is-size-6 has-text-weight-bold article-title" style="flex-grow: 1;">
+                            <span class="icon is-size-4 has-text-info mr-5">
+                                <i class="fas fa-newspaper"></i>
+                            </span>
+
+                            <span class="is-skeleton">
+                                Lorem ipsum dolor sit amet!
+                            </span>
+
+                            <span class="icon ml-3 has-text-grey-dark">
+                                <i class="fas fa-up-right-from-square"></i>
+                            </span>
+                        </span>
+                        <span class="is-size-6 has-text-weight-bold ml-3 article-date is-skeleton">00/00/0000</span>
                     </div>
                 </div>
 
