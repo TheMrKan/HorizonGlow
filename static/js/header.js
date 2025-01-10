@@ -21,7 +21,7 @@ const header = `
                 </button>
                 <div id="menu-dropdown" class="dropdown is-hoverable">
                     <div class="dropdown-trigger">
-                        <button class="button is-rounded is-text has-text-info is-size-5"
+                        <button class="button is-rounded is-text is-size-5"
                                 style="text-decoration: none;" aria-haspopup="true"
                                 aria-controls="dropdown-menu">
                             <span class="icon mt-1">
@@ -30,23 +30,13 @@ const header = `
                             <span class="icon mt-1">
                                 <i class="fas fa-arrow-down" aria-hidden="true"></i>
                             </span>
-                            <span>Menu</span>
+                            <span>Info</span>
                         </button>
                     </div>
                     <div class="dropdown-menu" role="menu">
-                        <div class="dropdown-content" style="box-shadow: none;">
-                            <button onclick="location.href='/rules'" class="button is-text is-size-5 has-text-weight-semi-bold has-text-info is-rounded">
-                                <span class="icon is-small mr-2">
-                                    <i class="fas fa-book"></i>
-                                </span>
-                                <span>Rules</span>
-                            </button>
-                            <button onclick="location.href='/news'" class="button is-text is-size-5 has-text-weight-semi-bold is-rounded is-news">
-                                <span class="icon is-small mr-2">
-                                    <i class="fas fa-newspaper"></i>
-                                </span>
-                                <span>News</span>
-                            </button>
+                        <div class="dropdown-content pl-2">
+                            <a href="/rules" class="dropdown-item is-size-6"><span class="icon"><i class="fas fa-book mr-2" aria-hidden="true"></i></span> Rules </a>
+                            <a href="/news" class="dropdown-item is-size-6"><span class="icon"><i class="fas fa-newspaper mr-2" aria-hidden="true"></i></span> News </a>
                         </div>
                     </div>
                 </div>
