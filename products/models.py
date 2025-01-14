@@ -10,6 +10,7 @@ class HasAvailableProductsManager(models.Manager):
 class Category(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50)
+    description_url = models.URLField(max_length=200, default='')
 
     objects = models.Manager()
     has_available_products = HasAvailableProductsManager()

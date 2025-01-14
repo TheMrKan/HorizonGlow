@@ -71,10 +71,10 @@
 
                         if (loadedProducts < MIN_PRODUCTS_COUNT) {
                             loadedProducts += categ["productsCount"];
-                            loadCategory(categ.id, categ.name, true);
+                            loadCategory(categ.id, categ.name, categ["descriptionUrl"], true);
                         }
                         else {
-                            let el = loadCategory(categ.id, categ.name, false);
+                            let el = loadCategory(categ.id, categ.name, categ["descriptionUrl"], false);
                         }
                     }
                     categoriesSelector.removeClass("is-skeleton");
@@ -87,9 +87,12 @@
             });
         }
 
-        function loadCategory(id, name, loadProducts) {
+        function loadCategory(id, name, descriptionUrl, loadProducts) {
             const element = getOrCreateCategoryElement(id);    // должно создаваться синхронно, чтобы сохранялся порядок
 
+            if (descriptionUrl !== "" && descriptionUrl !== null) {
+                element.find("button").first().show().click(() => window.open(descriptionUrl, '_blank').focus());
+            }
             if (!loadProducts) return element;
 
             loading.push(id);
@@ -136,7 +139,7 @@
                 }
 
                 loadedProducts += category["productsCount"];
-                loadCategory(category["id"], category["name"], true);
+                loadCategory(category["id"], category["name"], null, true);
 
                 if (loadedProducts - initialProducts >= LOAD_PRODUCTS_COUNT) {
                     break;
@@ -164,7 +167,7 @@
 
             let categ = categories.get(target);
             if (!categ["isLoaded"]) {
-                loadCategory(categ["id"], categ["name"], true);
+                loadCategory(categ["id"], categ["name"], null, true);
             }
 
             $("#loadMoreButton").hide();
@@ -331,6 +334,9 @@
                                     <div class="grid">
                                         <div class="cell is-col-span-5 is-align-items-center is-flex">
                                             <span class="is-size-5 is-skeleton">SKELETON SKELETON</span>
+                                            <button class="button is-primary is-outlined is-rounded ml-4" style="--bulma-button-padding-vertical: 0.1em; display: none;">
+                                                <span>Description</span>
+                                            </button>
                                         </div>
                                         <div class="cell is-align-items-center is-justify-content-center is-flex is-hidden-mobile">
                                             <span class="has-text-weight-bold has-text-white-ter">Number</span>
