@@ -15,6 +15,7 @@ env | while read -r LINE; do  # читаем результат команды '
 done
 
 python3 manage.py collectstatic --no-input
+python3 manage.py migrate
 
 service cron start
 
