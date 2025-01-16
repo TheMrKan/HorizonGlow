@@ -62,7 +62,7 @@ class ProductBuyer:
     def __load_entities(self):
         self.product = Product.objects.get(id=self.product_id)
         self.user = User.objects.get(id=self.user_id)
-        self.seller = Seller.objects.get(pk=self.product.seller.id)
+        self.seller = get_or_create_seller(self.product.seller)
 
     def __assert_can_buy(self):
         if not ProductFileManager(self.product).has_file():
