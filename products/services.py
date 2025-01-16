@@ -250,7 +250,13 @@ class ProductFileManager:
         if not original_name:
             raise NameError("Empty file name is not allowed")
 
-        return f"{self.product.id}__" + original_name
+        prefix = f"{self.product.id}__"
+        # не допускаем повторного добавления префикса
+        # иначе при сохранении модели из админки с тем же файлом префикс добавляется дважды
+        if original_name.startswith(prefix):
+            return original_name
+
+        return prefix + original_name
 
 
 class ProductFileCleaner:
