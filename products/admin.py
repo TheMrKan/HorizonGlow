@@ -62,7 +62,6 @@ class ProductAdminForm(ModelForm):
 
     def clean_file(self):
         new_file: FieldFile | None = self.cleaned_data.get("file", None)
-
         try:
             ProductFileManager.validate_file(None if new_file is False else new_file)
         except ProductFileManager.InvalidFileTypeError:
@@ -93,7 +92,8 @@ class ProductAdminForm(ModelForm):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ["description", "category", "number", "score", "price", "purchased_by"]
+    list_display = ["description", "category", "number", "score", "price", "purchased_by", "support_code"]
+    readonly_fields = ["support_code"]
 
     form = ProductAdminForm
     formfield_overrides = {

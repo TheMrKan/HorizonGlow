@@ -34,7 +34,13 @@
                 for (let pur of purchases) {
                     const productElement = template.clone()
                     productElement.attr("id", null);
-                    productElement.find(".cell > span").first().removeClass("is-skeleton").addClass("has-text-grey-light").text(pur.description);
+
+                    let description = pur.description;
+                    if (!pur["supportPeriodExpired"]) {
+                        description += `    <span class="support-code"><span class="icon"><i class="fas fa-comments mr-2" aria-hidden="true"></i></span>#${pur["supportCode"]}</span>`;
+                    }
+                    productElement.find(".cell > span").first().removeClass("is-skeleton").addClass("has-text-grey-light").html(description);
+
                     productElement.find(".productNumber").removeClass("is-skeleton").addClass("has-text-white-ter").text(pur.number);
                     productElement.find(".productScore").removeClass("is-skeleton").addClass("has-text-white-ter").text(pur.score);
                     productElement.find(".productPrice").removeClass("is-skeleton").addClass("has-text-white-ter").text(`${+Number(pur.price).toFixed(2)}$`);
@@ -74,7 +80,9 @@
                     <div class="fixed-grid has-2-cols-mobile has-5-cols-tablet">
                         <div class="grid">
                             <div class="cell is-col-span-2 is-col-span-3-tablet is-align-items-center is-flex">
-                                <span class="is-size-5 has-text-weight-bold has-text-white-ter">Your purchases</span>
+                                <span class="is-size-5 has-text-weight-bold has-text-white-ter">
+                                    Your purchases
+                                </span>
                             </div>
                             <div class="cell is-col-span-2 is-hidden-mobile" style="margin-top: 0.2rem;">
                                 <div class="level is-mobile">

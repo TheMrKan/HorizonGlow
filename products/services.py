@@ -1,7 +1,5 @@
-from datetime import datetime
-
-from django.db.transaction import commit
-
+from datetime import datetime, timedelta
+import random
 from seller.models import Seller
 from .models import Product, Category
 from users.models import User
@@ -12,7 +10,7 @@ from typing import List
 from django.conf import settings
 from django.utils import timezone
 import traceback
-from seller.services import SellerEconomyService
+from seller.services import SellerEconomyService, get_or_create_seller
 
 
 class ProductBuyer:
@@ -53,6 +51,7 @@ class ProductBuyer:
             self.product.purchased_at = timezone.now()
             self.user.balance -= self.product.price
 
+            ProductSupportService(self.product).assign_support_code(commit=False)
             SellerEconomyService(self.seller).on_product_purchased(self.product, commit=False)
 
             self.product.save()
@@ -345,3 +344,65 @@ class ProductDeleter:
     def assert_can_be_deleted(self):
         if self.product.purchased_by:
             raise self.AlreadyBoughtError()
+
+
+class ProductSupportService:
+    ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    CODE_LENGTH = 4
+    SUPPORT_PERIOD = timedelta(days=1)
+    """
+    Период после покупки товара, в течение которого пользователь может обратиться в поддержку
+    """
+
+    product: Product
+
+    class SupportPeriodExpiredError(Exception):
+        pass
+
+    class CodeGenerationError(Exception):
+        pass
+
+    def __init__(self, product: Product):
+        self.product = product
+
+    def is_support_period_expired(self) -> bool:
+        # товар еще не куплен
+        if self.product.purchased_at is None:
+            return False
+
+        # с момента покупки прошло более SUPPORT_PERIOD времени
+        return (timezone.now() - self.product.purchased_at) > self.SUPPORT_PERIOD
+
+    def assign_support_code(self, commit: bool = True):
+        attempts = 5
+        for _ in range(attempts):
+            code = self.__generate_code()
+
+            # если код занят, то генерируем заново
+            if not self.__is_code_available(code):
+                continue
+
+            self.product.support_code = code
+            if commit:
+                self.product.save()
+            return
+
+        # с attempts попыток не удалось получить свободный код
+        raise self.CodeGenerationError()
+
+    def __generate_code(self) -> str:
+        """
+        :return: Строка из CODE_LENGTH заглавных лат. букв или цифр (ALPHABET)
+        """
+        indexes = [random.randint(0, len(self.ALPHABET) - 1) for _ in range(self.CODE_LENGTH)]
+        return "".join(self.ALPHABET[index] for index in indexes)
+
+    def __is_code_available(self, code: str) -> bool:
+        product_query = Product.objects.filter(support_code=code).order_by("-purchased_at")[:1]
+
+        # нет товаров с таким support_code
+        if not any(product_query):
+            return True
+
+        # True, если поддержка для товара с таким кодом уже закончилась
+        return ProductSupportService(product_query[0]).is_support_period_expired()

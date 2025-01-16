@@ -46,6 +46,7 @@ class Product(models.Model):
     purchased_at = models.DateTimeField(null=True, default=None, blank=True)
     purchased_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, default=None, blank=True, related_name='purchased_products')
     file = models.FileField(null=True, default=None, blank=True)
+    support_code = models.CharField(max_length=4, default='')
 
     objects = models.Manager()
     available = AvailableManager()
@@ -63,7 +64,8 @@ class Product(models.Model):
                 condition=models.Q(file__isnull=False) & ~models.Q(file='')
             ),    # для очистки файлов
             models.Index(fields=['seller', 'purchased_by', "-added_at"]),    # для фильтров в селлер панели
-            models.Index(fields=['seller', "purchased_by", "-purchased_at"])    # для фильтров в селлер панели
+            models.Index(fields=['seller', "purchased_by", "-purchased_at"]),    # для фильтров в селлер панели
+            models.Index(fields=["support_code", "-purchased_at"])
         ]
 
     def __str__(self):

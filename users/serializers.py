@@ -6,7 +6,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.urls import reverse
 from .models import User
 from products.models import Product
-from products.services import ProductFileManager
+from products.services import ProductFileManager, ProductSupportService
 from users.services import UserCreator, UserCredentialsManager
 
 
@@ -137,16 +137,20 @@ class AccountSerializer(serializers.ModelSerializer):
 class PurchaseSerializer(serializers.ModelSerializer):
     file_available = serializers.SerializerMethodField()
     file_url = serializers.SerializerMethodField()
+    support_period_expired = serializers.SerializerMethodField()
 
-    def get_file_available(self, obj: Product):
+    def get_file_available(self, obj: Product) -> bool:
         return ProductFileManager(obj).has_file()
 
-    def get_file_url(self, obj: Product):
+    def get_file_url(self, obj: Product) -> str:
         return reverse("product-download", kwargs={"pk": obj.id})
+
+    def get_support_period_expired(self, obj: Product) -> bool:
+        return ProductSupportService(obj).is_support_period_expired()
 
     class Meta:
         model = Product
-        fields = ('id', 'description', 'number', 'score', 'purchased_at', 'price', "file_available", "file_url")
+        fields = ('id', 'description', 'number', 'score', 'purchased_at', 'price', "file_available", "file_url", "support_code", "support_period_expired")
 
 
 
