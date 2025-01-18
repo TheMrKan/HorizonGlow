@@ -2,3 +2,5 @@
 /.idea
 /staticfiles/
 /.env.prod
+/bot/.env
+/bot/logs/
