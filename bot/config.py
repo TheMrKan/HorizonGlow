@@ -1,5 +1,10 @@
 from bestconfig import Config
 from bestconfig.config_provider import ConfigProvider
+
+from bestconfig.file_parsers import YamlParser
+import yaml
+import warnings
+
 from typing import Protocol
 
 
@@ -11,10 +16,22 @@ class UserCommandsProtocol(Protocol):
     start_message: str
     new_ticket_button: str
     new_ticket_answer: str
+    new_ticket_no_code: str
+    new_ticket_invalid_code: str
+    new_ticket_preriod_expired: str
+    new_ticket_success: str
+    new_ticket_already_have: str
 
 
 class ConfigProtocol(Protocol):
     BOT_TOKEN: str
+    API_USERNAME: str
+    API_PASSWORD: str
+    API_SECRET_PHRASE: str
+    DATABASE_URL: str
+    SUPPORT_GROUP_ID: int
+
+    base_api_url: str
     general: GeneralProtocol
     user_commands: UserCommandsProtocol
     logging: dict
@@ -22,6 +39,20 @@ class ConfigProtocol(Protocol):
 
 class ConfigInherited(ConfigProvider, ConfigProtocol):
     pass
+
+
+# нужно для корректной загрузки эмодзи из yaml конфига
+# отличается от оригинала добавлением 'encoding="utf-8"' в параметры open
+def read_patch(filepath: str):
+    with open(filepath, 'r', encoding="utf-8") as file:
+        try:
+            data_dict = yaml.load(file, Loader=yaml.Loader)
+            if not isinstance(data_dict, dict):
+                warnings.warn(f"Error parsing file: {filepath}", SyntaxWarning)
+            return data_dict or {}
+        except yaml.YAMLError:
+            raise SyntaxError
+YamlParser.read = read_patch
 
 
 instance: ConfigInherited = Config()

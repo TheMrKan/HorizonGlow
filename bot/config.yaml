@@ -1,10 +1,16 @@
+base_api_url: "http://192.168.137.1:8000/api/"
 general:
   error: "❌  An internal error has occured"
 
 user_commands:
-  start_message: "Hi, it's Horizon Glow Support Bot"
-  new_ticket_button: "Contact support"
-  new_ticket_answer: "Send us the Support Code of the product.\n\nYou can find it on Purchases page on https://horizon-glow.com/purchases after the description of the product.\n\nExample: #H07B"
+  start_message: "Hi, it's Horizon Glow Support Bot."
+  new_ticket_button: "Create ticket"
+  new_ticket_answer: "Send us the Support Code of the product or press the button below if your question is not related to an already bought product.\n\nYou can find the code on Purchases page on https://horizon-glow.com/purchases after the description of the product.\n\nExample: <code>#H07B</code>"
+  new_ticket_no_code: "I don't have a code"
+  new_ticket_invalid_code: "Invalid support code. Please, check it and send the correct one.\nIf you don't know what to send, press \"I don't have a code\" below."
+  new_ticket_preriod_expired: "Support period of a product is 1 day. Sorry but you can't create a ticket for this product since the period has expired.\n\nYou can create a ticket without code. Click \"Create ticket\" below."
+  new_ticket_already_have: "You already have an active ticket. Please close it before opening a new one."
+  new_ticket_success: "Ticket created"
 
 logging:
   version: 1
@@ -38,3 +44,9 @@ logging:
       handlers: [ 'console', 'file' ]
       level: 'WARNING'
       propagate: false
+    httpcore.http11:
+      handlers: []
+      level: "WARNING"
+    httpcore.connection:
+      handlers: [ ]
+      level: "WARNING"

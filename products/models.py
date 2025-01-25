@@ -53,7 +53,8 @@ class Product(models.Model):
 
     class Meta:
         permissions = [
-            ("download_all_products", "Can download file of any product")
+            ("download_all_products", "Can download file of any product"),
+            ("read_support_info", "Can read more product info")
         ]
         indexes = [
             models.Index(fields=['category']),    # для запроса товаров определенной категории

@@ -1,2 +1,6 @@
 aiogram
 bestconfig
+pydantic
+httpx
+sqlalchemy
+asyncpg

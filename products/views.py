@@ -1,4 +1,3 @@
-from django.db.transaction import commit
 from rest_framework import viewsets, mixins, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -6,8 +5,8 @@ from rest_framework.renderers import BaseRenderer
 from utils.exceptions import APIException
 from .models import Category, Product
 from .serializers import CategorySerializer, ProductSerializer
-from .services import ProductBuyer, ProductFileManager, ProductAccessManager, ProductDeleter
-from django_filters.rest_framework import DjangoFilterBackend, FilterSet, NumberFilter
+from .services import ProductBuyer, ProductFileManager, ProductAccessManager, ProductDeleter, ProductSupportService
+from django_filters.rest_framework import DjangoFilterBackend, FilterSet, NumberFilter, CharFilter
 from django.http.response import FileResponse
 import os.path
 
@@ -21,10 +20,14 @@ class CategoryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
 class ProductFilterSet(FilterSet):
     category = NumberFilter(field_name='category')
+    support_code = CharFilter(method='filter_support_code')
+
+    def filter_support_code(self, queryset, name, value):
+        return ProductSupportService.query_by_support_code(value)
 
     class Meta:
         model = Product
-        fields = ("category", )
+        fields = ("category", "support_code")
 
 
 class PassthroughRenderer(BaseRenderer):

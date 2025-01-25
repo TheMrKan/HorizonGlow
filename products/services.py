@@ -365,6 +365,10 @@ class ProductSupportService:
     def __init__(self, product: Product):
         self.product = product
 
+    @staticmethod
+    def query_by_support_code(code: str):
+        return Product.objects.filter(support_code=code).order_by("-purchased_at")[:1]
+
     def is_support_period_expired(self) -> bool:
         # товар еще не куплен
         if self.product.purchased_at is None:
@@ -398,7 +402,7 @@ class ProductSupportService:
         return "".join(self.ALPHABET[index] for index in indexes)
 
     def __is_code_available(self, code: str) -> bool:
-        product_query = Product.objects.filter(support_code=code).order_by("-purchased_at")[:1]
+        product_query = self.query_by_support_code(code)
 
         # нет товаров с таким support_code
         if not any(product_query):
