@@ -1,8 +1,10 @@
+from aiogram.exceptions import TelegramBadRequest
 from sqlalchemy.ext.asyncio import AsyncSession
 import sqlalchemy as sa
 from aiogram import html
 from aiogram.types import Message
 import datetime
+from pymitter import EventEmitter
 
 from core.api import APIClient, ProductInfo
 from .models import User, Ticket
@@ -20,6 +22,8 @@ class SupportPeriodExpiredError(Exception):
 
 class AlreadyHaveTicketError(Exception):
     pass
+
+emitter = EventEmitter()
 
 
 async def create_ticket_async(db: AsyncSession, user: User, support_code: str | None):
@@ -48,37 +52,14 @@ async def create_ticket_async(db: AsyncSession, user: User, support_code: str | 
         await globals.bot.delete_forum_topic(config.SUPPORT_GROUP_ID, topic.message_thread_id)
         raise
 
-    await __send_ticket_info_async(ticket, product)
+    await emitter.emit_async("created", session=db, ticket=ticket, topic=topic, user=user, product=product)
+
     return ticket, product
 
 
 async def __get_id_async(db: AsyncSession):
     query = sa.select(sa.func.max(Ticket.__table__.c.id))
     return ((await db.execute(query)).scalar_one_or_none() or 0) + 1
-
-
-def format_dt(dt: datetime.datetime) -> str:
-    return datetime.datetime.strftime(dt, '%m/%d/%Y %H:%M UTC')
-
-
-async def __send_ticket_info_async(ticket: Ticket, product: ProductInfo | None):
-    message = f"[{ticket.id}] Ticket created"
-
-    if product:
-        message += (f"\n\n{html.bold("Product info:")}\n"
-                    f"{html.bold("Description:")} {product.description}\n"
-                    f"{html.bold("Support code:")} {product.support_code}\n"
-                    f"{html.bold("Score:")} {product.score}\n"
-                    f"{html.bold("Number:")} {product.number}\n"
-                    f"{html.bold("Price:")} {product.price}$\n"
-                    f"{html.bold("Produced at:")} {format_dt(product.produced_at)}\n"
-                    f"{html.bold("Purchased at:")} {format_dt(product.purchased_at)}")
-    else:
-        message += f"\n\n{html.bold("Product is not provided")}"
-
-    message += "\n\nAll messages in this chat will be sent to the ticket creator"
-
-    await globals.bot.send_message(config.SUPPORT_GROUP_ID, message, message_thread_id=ticket.topic_id)
 
 
 async def get_ticket_async(db: AsyncSession, ticket_id: int) -> Ticket | None:
@@ -110,14 +91,39 @@ async def __get_active_ticket_user_async(db: AsyncSession, user: User) -> Ticket
     return ticket
 
 
-async def close_ticket_async(db: AsyncSession, user: User):
+async def close_user_ticket_async(db: AsyncSession, user: User):
     ticket = await __get_active_ticket_user_async(db, user)
 
-    ticket.status = ticket.CLOSED
-    user.ticket = None
+    await __close_ticket_async(db, ticket, user)
 
-    await globals.bot.close_forum_topic(config.SUPPORT_GROUP_ID, ticket.topic_id)
-    await globals.bot.edit_forum_topic(config.SUPPORT_GROUP_ID, ticket.topic_id, name=f"[CLOSED] [{ticket.id}]", icon_custom_emoji_id='5420216386448270341')
+
+async def close_topic_ticket_async(db: AsyncSession, topic_id: int):
+    ticket = await __get_active_ticket_topic_async(db, topic_id)
+    user = await __get_ticket_user_async(db, ticket.id)
+
+    await __close_ticket_async(db, ticket, user)
+
+
+async def __close_ticket_async(db: AsyncSession, ticket: Ticket, user: User | None):
+    ticket.status = ticket.CLOSED
+
+    if user:
+        user.ticket = None
+
+    try:
+        await globals.bot.close_forum_topic(config.SUPPORT_GROUP_ID, ticket.topic_id)
+    except TelegramBadRequest as e:
+        if "TOPIC_NOT_MODIFIED" not in e.message:
+            raise
+
+    try:
+        await globals.bot.edit_forum_topic(config.SUPPORT_GROUP_ID, ticket.topic_id, name=f"[CLOSED] [{ticket.id}]",
+                                           icon_custom_emoji_id='5420216386448270341')
+    except TelegramBadRequest as e:
+        if "TOPIC_NOT_MODIFIED" not in e.message:
+            raise
+
+    await emitter.emit_async("closed", session=db, ticket=ticket, user=user)
 
 
 async def send_message_from_user_async(db: AsyncSession, user: User, message: Message):

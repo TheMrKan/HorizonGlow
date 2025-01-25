@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from config import instance as config
 from core import tickets
 from core.models import User
+import globals
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +51,7 @@ new_ticket_keyboard = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text=config.
                                           resize_keyboard=True)
 
 
-@router.message(ChatTypeFilter("private"),F.text.casefold() == config.user_commands.new_ticket.button.casefold())
+@router.message(ChatTypeFilter("private"), F.text.casefold() == config.user_commands.new_ticket.button.casefold())
 async def cmd_new_ticket(message: Message, state: FSMContext):
     await state.set_state(NewTicketForm.support_code)
     await message.answer(config.user_commands.new_ticket.answer,
@@ -91,11 +92,17 @@ async def cmd_new_ticket_support_code(message: Message, session: AsyncSession, u
 @router.message(ChatTypeFilter("private"), F.text.casefold() == config.user_commands.ticket.close_button.casefold())
 async def cmd_close_ticket(message: Message, session: AsyncSession, user: User):
     try:
-        await tickets.close_ticket_async(session, user)
-        await message.answer(config.user_commands.close_ticket.closed_message, reply_markup=default_keyboard)
+        await tickets.close_user_ticket_async(session, user)
     except tickets.NoTicketError:
         await message.answer(config.user_commands.message_no_ticket, reply_markup=default_keyboard)
         return
+
+
+async def on_ticket_closed_async(user: User | None, **kwargs):
+    if user:
+        await globals.bot.send_message(user.id, config.user_commands.close_ticket.closed_message, reply_markup=default_keyboard)
+
+tickets.emitter.on("closed", on_ticket_closed_async)
 
 
 @router.message(ChatTypeFilter("private"))

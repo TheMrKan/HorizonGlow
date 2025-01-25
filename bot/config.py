@@ -40,6 +40,7 @@ class UserCommandsProtocol(Protocol):
 
 class SupportCommandsProtocol(Protocol):
     ticket_is_closed: str
+    close_ticket_button: str
 
 
 class ConfigProtocol(Protocol):

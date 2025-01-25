@@ -1,15 +1,47 @@
 import logging
-from aiogram import Router
-from aiogram.types import ErrorEvent, Message
+from aiogram import Router, html, F
+from aiogram.types import ErrorEvent, Message, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove, \
+    InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, ForumTopicClosed
 from aiogram.filters import BaseFilter
 from sqlalchemy.ext.asyncio import AsyncSession
+import datetime
 
 from config import instance as config
 from core import tickets
+from core.models import Ticket
+from core.api import ProductInfo
+import globals
 
 logger = logging.getLogger(__name__)
 
 router = Router(name="support_commands")
+
+
+def format_dt(dt: datetime.datetime) -> str:
+    return datetime.datetime.strftime(dt, '%m/%d/%Y %H:%M UTC')
+
+
+async def on_ticket_created_async(ticket: Ticket, product: ProductInfo | None, **kwargs):
+    message = f"[{ticket.id}] Ticket created"
+
+    if product:
+        message += (f"\n\n{html.bold("Product info:")}\n"
+                    f"{html.bold("Description:")} {product.description}\n"
+                    f"{html.bold("Support code:")} {product.support_code}\n"
+                    f"{html.bold("Score:")} {product.score}\n"
+                    f"{html.bold("Number:")} {product.number}\n"
+                    f"{html.bold("Price:")} {product.price}$\n"
+                    f"{html.bold("Produced at:")} {format_dt(product.produced_at)}\n"
+                    f"{html.bold("Purchased at:")} {format_dt(product.purchased_at)}")
+    else:
+        message += f"\n\n{html.bold("Product is not provided")}"
+
+    message += "\n\nAll messages in this chat will be sent to the ticket creator"
+
+    await globals.bot.send_message(config.SUPPORT_GROUP_ID, message, message_thread_id=ticket.topic_id)
+
+
+tickets.emitter.on("created", on_ticket_created_async)
 
 
 @router.error()
@@ -27,6 +59,16 @@ class SupportChatFilter(BaseFilter):
 
 @router.message(SupportChatFilter())
 async def on_message(message: Message, session: AsyncSession):
+    if message.forum_topic_closed and message.from_user and not message.from_user.is_bot:
+        try:
+            await tickets.close_topic_ticket_async(session, message.message_thread_id)
+        except tickets.NoTicketError:
+            pass
+        return
+
+    if any((message.forum_topic_created, message.forum_topic_edited, message.forum_topic_reopened)):
+        return
+
     if not message.from_user or message.from_user.is_bot:
         return
 
@@ -34,3 +76,5 @@ async def on_message(message: Message, session: AsyncSession):
         await tickets.send_message_from_support_async(session, message)
     except tickets.NoTicketError:
         await message.answer(config.support_commands.ticket_is_closed)
+
+
