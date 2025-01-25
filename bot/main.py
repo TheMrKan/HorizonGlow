@@ -15,6 +15,7 @@ logging.config.dictConfig(config.logging)
 logger = logging.getLogger(__name__)
 
 import user_commands
+import support_commands
 from core.api import APIClient
 from middlewares import DbSessionMiddleware, UsersMiddleware
 import globals
@@ -34,6 +35,7 @@ async def main():
     dp.message.middleware(UsersMiddleware())
 
     dp.include_router(user_commands.router)
+    dp.include_router(support_commands.router)
 
     APIClient.instance = APIClient(base_url=config.base_api_url,
                                    username=config.API_USERNAME,

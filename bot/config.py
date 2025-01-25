@@ -39,7 +39,7 @@ class UserCommandsProtocol(Protocol):
 
 
 class SupportCommandsProtocol(Protocol):
-    pass
+    ticket_is_closed: str
 
 
 class ConfigProtocol(Protocol):

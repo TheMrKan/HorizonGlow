@@ -100,7 +100,16 @@ async def cmd_close_ticket(message: Message, session: AsyncSession, user: User):
 
 @router.message(ChatTypeFilter("private"))
 async def on_message(message: Message, session: AsyncSession, user: User):
+    if not message.from_user or message.from_user.is_bot:
+        return
+
     if not user.ticket:
+        await message.answer(config.user_commands.message_no_ticket, reply_markup=default_keyboard)
+        return
+
+    try:
+        await tickets.send_message_from_user_async(session, user, message)
+    except tickets.NoTicketError:
         await message.answer(config.user_commands.message_no_ticket, reply_markup=default_keyboard)
         return
 

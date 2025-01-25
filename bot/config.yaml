@@ -22,7 +22,7 @@ user_commands:
     closed_message: "Your ticket was closed.\n\nYou can create a new one via keyboard button on the bottom."
 
 support_commands:
-
+  ticket_is_closed: "You can't send messages to the closed ticket"
 
 logging:
   version: 1

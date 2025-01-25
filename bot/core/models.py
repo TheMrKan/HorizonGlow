@@ -24,4 +24,4 @@ class User(Base):
     __tablename__ = 'users'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    ticket: Mapped[int] = mapped_column(ForeignKey('tickets.id', ondelete='SET NULL'), server_default=None)
+    ticket: Mapped[int | None] = mapped_column(ForeignKey('tickets.id', ondelete='SET NULL'), server_default=None, index=True)

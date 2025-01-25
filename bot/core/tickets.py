@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 import sqlalchemy as sa
 from aiogram import html
+from aiogram.types import Message
 import datetime
 
 from core.api import APIClient, ProductInfo
@@ -89,7 +90,7 @@ class NoTicketError(Exception):
     pass
 
 
-async def close_ticket_async(db: AsyncSession, user: User):
+async def __get_active_ticket_user_async(db: AsyncSession, user: User) -> Ticket:
     if not user.ticket:
         raise NoTicketError
 
@@ -106,9 +107,47 @@ async def close_ticket_async(db: AsyncSession, user: User):
 
         raise NoTicketError
 
+    return ticket
+
+
+async def close_ticket_async(db: AsyncSession, user: User):
+    ticket = await __get_active_ticket_user_async(db, user)
+
     ticket.status = ticket.CLOSED
     user.ticket = None
 
     await globals.bot.close_forum_topic(config.SUPPORT_GROUP_ID, ticket.topic_id)
     await globals.bot.edit_forum_topic(config.SUPPORT_GROUP_ID, ticket.topic_id, name=f"[CLOSED] [{ticket.id}]", icon_custom_emoji_id='5420216386448270341')
 
+
+async def send_message_from_user_async(db: AsyncSession, user: User, message: Message):
+    ticket = await __get_active_ticket_user_async(db, user)
+
+    await globals.bot.copy_message(config.SUPPORT_GROUP_ID, user.id, message.message_id, message_thread_id=ticket.topic_id)
+
+
+async def __get_active_ticket_topic_async(db: AsyncSession, topic_id: int) -> Ticket:
+    ticket_query = sa.select(Ticket).where(Ticket.topic_id == topic_id).limit(1)
+    ticket = (await db.execute(ticket_query)).scalar_one_or_none()
+
+    if ticket is None or ticket.status != ticket.OPENED:
+        raise NoTicketError
+
+    return ticket
+
+
+async def __get_ticket_user_async(db: AsyncSession, ticket_id: int) -> User | None:
+    user_query = sa.select(User).where(User.ticket == ticket_id).limit(1)
+    return (await db.execute(user_query)).scalar_one_or_none()
+
+
+async def send_message_from_support_async(db: AsyncSession, message: Message):
+    ticket = await __get_active_ticket_topic_async(db, message.message_thread_id)
+    user = await __get_ticket_user_async(db, ticket.id)
+
+    if not user:
+        ticket.status = ticket.CLOSED
+        await db.commit()
+        raise NoTicketError
+
+    await globals.bot.copy_message(user.id, config.SUPPORT_GROUP_ID, message.message_id)
