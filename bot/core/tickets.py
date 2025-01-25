@@ -47,7 +47,7 @@ async def create_ticket_async(db: AsyncSession, user: User, support_code: str | 
         await globals.bot.delete_forum_topic(config.SUPPORT_GROUP_ID, topic.message_thread_id)
         raise
 
-    await send_ticket_info_async(ticket, product)
+    await __send_ticket_info_async(ticket, product)
     return ticket, product
 
 
@@ -60,7 +60,7 @@ def format_dt(dt: datetime.datetime) -> str:
     return datetime.datetime.strftime(dt, '%m/%d/%Y %H:%M UTC')
 
 
-async def send_ticket_info_async(ticket: Ticket, product: ProductInfo | None):
+async def __send_ticket_info_async(ticket: Ticket, product: ProductInfo | None):
     message = f"[{ticket.id}] Ticket created"
 
     if product:
@@ -78,3 +78,37 @@ async def send_ticket_info_async(ticket: Ticket, product: ProductInfo | None):
     message += "\n\nAll messages in this chat will be sent to the ticket creator"
 
     await globals.bot.send_message(config.SUPPORT_GROUP_ID, message, message_thread_id=ticket.topic_id)
+
+
+async def get_ticket_async(db: AsyncSession, ticket_id: int) -> Ticket | None:
+    ticket_query = sa.select(Ticket).where(Ticket.id == ticket_id).limit(1)
+    return (await db.execute(ticket_query)).scalar_one_or_none()
+
+
+class NoTicketError(Exception):
+    pass
+
+
+async def close_ticket_async(db: AsyncSession, user: User):
+    if not user.ticket:
+        raise NoTicketError
+
+    ticket = await get_ticket_async(db, user.ticket)
+    if not ticket:
+        user.ticket = None
+        await db.commit()
+
+        raise NoTicketError
+
+    if ticket.status != ticket.OPENED:
+        user.ticket = None
+        await db.commit()
+
+        raise NoTicketError
+
+    ticket.status = ticket.CLOSED
+    user.ticket = None
+
+    await globals.bot.close_forum_topic(config.SUPPORT_GROUP_ID, ticket.topic_id)
+    await globals.bot.edit_forum_topic(config.SUPPORT_GROUP_ID, ticket.topic_id, name=f"[CLOSED] [{ticket.id}]", icon_custom_emoji_id='5420216386448270341')
+

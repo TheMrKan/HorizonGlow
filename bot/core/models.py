@@ -3,12 +3,16 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import ForeignKey, DateTime
 from sqlalchemy.sql import func
 import datetime
+import enum
 
 Base = declarative_base()
 
 
 class Ticket(Base):
     __tablename__ = 'tickets'
+
+    OPENED = 0
+    CLOSED = 1
 
     id: Mapped[int] = mapped_column(primary_key=True)
     topic_id: Mapped[int] = mapped_column(index=True)

@@ -4,6 +4,7 @@ general:
 
 user_commands:
   start_message: "Hi, it's Horizon Glow Support Bot."
+  message_no_ticket: "You should create a ticket to send messages to our Support Team. Use keyboard button on the bottom to create a new ticket."
 
   new_ticket:
     button: "Create ticket"
@@ -16,6 +17,12 @@ user_commands:
 
   ticket:
     close_button: "Close ticket"
+
+  close_ticket:
+    closed_message: "Your ticket was closed.\n\nYou can create a new one via keyboard button on the bottom."
+
+support_commands:
+
 
 logging:
   version: 1

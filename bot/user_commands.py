@@ -88,3 +88,21 @@ async def cmd_new_ticket_support_code(message: Message, session: AsyncSession, u
         await message.answer(config.user_commands.new_ticket.already_have, reply_markup=default_keyboard)
 
 
+@router.message(ChatTypeFilter("private"), F.text.casefold() == config.user_commands.ticket.close_button.casefold())
+async def cmd_close_ticket(message: Message, session: AsyncSession, user: User):
+    try:
+        await tickets.close_ticket_async(session, user)
+        await message.answer(config.user_commands.close_ticket.closed_message, reply_markup=default_keyboard)
+    except tickets.NoTicketError:
+        await message.answer(config.user_commands.message_no_ticket, reply_markup=default_keyboard)
+        return
+
+
+@router.message(ChatTypeFilter("private"))
+async def on_message(message: Message, session: AsyncSession, user: User):
+    if not user.ticket:
+        await message.answer(config.user_commands.message_no_ticket, reply_markup=default_keyboard)
+        return
+
+
+

@@ -26,10 +26,20 @@ class TicketProtocol(Protocol):
     close_button: str
 
 
+class CloseTicketProtocol(Protocol):
+    closed_message: str
+
+
 class UserCommandsProtocol(Protocol):
     start_message: str
+    message_no_ticket: str
     new_ticket: NewTicketProtocol
     ticket: TicketProtocol
+    close_ticket: CloseTicketProtocol
+
+
+class SupportCommandsProtocol(Protocol):
+    pass
 
 
 class ConfigProtocol(Protocol):
@@ -43,6 +53,7 @@ class ConfigProtocol(Protocol):
     base_api_url: str
     general: GeneralProtocol
     user_commands: UserCommandsProtocol
+    support_commands: SupportCommandsProtocol
     logging: dict
 
 
