@@ -12,15 +12,24 @@ class GeneralProtocol(Protocol):
     error: str
 
 
+class NewTicketProtocol(Protocol):
+    button: str
+    answer: str
+    no_code: str
+    invalid_code: str
+    preriod_expired: str
+    success: str
+    already_have: str
+
+
+class TicketProtocol(Protocol):
+    close_button: str
+
+
 class UserCommandsProtocol(Protocol):
     start_message: str
-    new_ticket_button: str
-    new_ticket_answer: str
-    new_ticket_no_code: str
-    new_ticket_invalid_code: str
-    new_ticket_preriod_expired: str
-    new_ticket_success: str
-    new_ticket_already_have: str
+    new_ticket: NewTicketProtocol
+    ticket: TicketProtocol
 
 
 class ConfigProtocol(Protocol):

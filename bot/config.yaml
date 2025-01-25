@@ -4,13 +4,18 @@ general:
 
 user_commands:
   start_message: "Hi, it's Horizon Glow Support Bot."
-  new_ticket_button: "Create ticket"
-  new_ticket_answer: "Send us the Support Code of the product or press the button below if your question is not related to an already bought product.\n\nYou can find the code on Purchases page on https://horizon-glow.com/purchases after the description of the product.\n\nExample: <code>#H07B</code>"
-  new_ticket_no_code: "I don't have a code"
-  new_ticket_invalid_code: "Invalid support code. Please, check it and send the correct one.\nIf you don't know what to send, press \"I don't have a code\" below."
-  new_ticket_preriod_expired: "Support period of a product is 1 day. Sorry but you can't create a ticket for this product since the period has expired.\n\nYou can create a ticket without code. Click \"Create ticket\" below."
-  new_ticket_already_have: "You already have an active ticket. Please close it before opening a new one."
-  new_ticket_success: "Ticket created"
+
+  new_ticket:
+    button: "Create ticket"
+    answer: "Send us the Support Code of the product or press the button below if your question is not related to an already bought product.\n\nYou can find the code on Purchases page on https://horizon-glow.com/purchases after the description of the product.\n\nExample: <code>#H07B</code>"
+    no_code: "I don't have a code"
+    invalid_code: "Invalid support code. Please, check it and send the correct one.\nIf you don't know what to send, press \"I don't have a code\" below."
+    preriod_expired: "Support period of a product is 1 day. Sorry but you can't create a ticket for this product since the period has expired.\n\nYou can create a ticket without code. Click \"Create ticket\" below."
+    already_have: "You already have an active ticket. Please close it before opening a new one."
+    success: "Ticket was successfully created.\nProduct: {product_description}\n\nPlease describe your problem. All messages below will be sent to the support team.\nUse keyboard button on the bottom to close the ticket. Ticket will be automaticly closed after 1 day of inactivity."
+
+  ticket:
+    close_button: "Close ticket"
 
 logging:
   version: 1
