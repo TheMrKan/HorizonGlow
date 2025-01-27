@@ -1,6 +1,6 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import ForeignKey, DateTime
+from sqlalchemy import ForeignKey, DateTime, BigInteger
 from sqlalchemy.sql import func
 import datetime
 import enum
@@ -23,5 +23,5 @@ class Ticket(Base):
 class User(Base):
     __tablename__ = 'users'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     ticket: Mapped[int | None] = mapped_column(ForeignKey('tickets.id', ondelete='SET NULL'), server_default=None, index=True)
