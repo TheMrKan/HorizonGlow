@@ -48,10 +48,10 @@ class ConfigProtocol(Protocol):
     API_USERNAME: str
     API_PASSWORD: str
     API_SECRET_PHRASE: str
+    API_BASE_URL: str
     DATABASE_URL: str
     SUPPORT_GROUP_ID: int
 
-    base_api_url: str
     general: GeneralProtocol
     user_commands: UserCommandsProtocol
     support_commands: SupportCommandsProtocol

@@ -24,7 +24,7 @@ import globals
 async def main():
     logger.info("Starting...")
 
-    db_engine = create_async_engine(config.DATABASE_URL, echo=True)
+    db_engine = create_async_engine(config.DATABASE_URL, echo=False)
     sessionmaker = async_sessionmaker(db_engine, expire_on_commit=False)
 
     bot = Bot(config.BOT_TOKEN, default=DefaultBotProperties(parse_mode='HTML'))
@@ -37,7 +37,7 @@ async def main():
     dp.include_router(user_commands.router)
     dp.include_router(support_commands.router)
 
-    APIClient.instance = APIClient(base_url=config.base_api_url,
+    APIClient.instance = APIClient(base_url=config.API_BASE_URL,
                                    username=config.API_USERNAME,
                                    password=config.API_PASSWORD,
                                    secret_phrase=config.API_SECRET_PHRASE)

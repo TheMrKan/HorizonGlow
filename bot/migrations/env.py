@@ -21,10 +21,14 @@ if config.config_file_name is not None:
 from core.models import Base
 target_metadata = Base.metadata
 
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    print("dotenv module not found")
 import os
 
-load_dotenv()
+
 config.set_main_option("sqlalchemy.url", os.getenv("MIGRATIONS_DATABASE_URL"))
 
 

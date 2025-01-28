@@ -25,6 +25,15 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data/
 
+  tg_bot:
+    build: ./bot
+    volumes:
+      - ./bot:/usr/src/app/bot
+    env_file:
+      - ./bot/.env
+    depends_on:
+      - postgres
+
 volumes:
   pg_data:
   product_files:

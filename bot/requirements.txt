@@ -5,4 +5,7 @@ httpx
 sqlalchemy
 asyncpg
 pymitter
+
+# migrations
 alembic
+psycopg2

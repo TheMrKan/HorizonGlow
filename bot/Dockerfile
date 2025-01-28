@@ -10,4 +10,4 @@ COPY . .
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-COMMAND ["python3", "-m", "main.py"]
+CMD ["python3", "main.py"]
