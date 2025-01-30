@@ -26,6 +26,7 @@ class ProductInfo(BaseModel):
     is_support_period_expired: bool
     purchased_at: datetime.datetime | None
     purchased_by: int | None
+    file_name: str | None
 
 
 class APIClient:

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.fields import CharField, SerializerMethodField
 from .models import Category, Product
-from .services import ProductCreator, ProductSupportService
+from .services import ProductCreator, ProductSupportService, ProductFileManager
 from .validators import *
 from users.models import User
 
@@ -23,7 +23,8 @@ class ProductSerializer(serializers.ModelSerializer):
     support_info_fields = {"support_code": SerializerMethodField(read_only=True),
                            "is_support_period_expired": SerializerMethodField(read_only=True),
                            "purchased_at": SerializerMethodField(read_only=True),
-                           "purchased_by": SerializerMethodField(read_only=True),}
+                           "purchased_by": SerializerMethodField(read_only=True),
+                           "file_name": SerializerMethodField(read_only=True),}
 
     def get_fields(self):
         fields: dict = super().get_fields()
@@ -75,6 +76,10 @@ class ProductSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_purchased_by(instance: Product):
         return instance.purchased_by_id if instance.purchased_by else None
+
+    @staticmethod
+    def get_file_name(instance: Product):
+        return ProductFileManager.get_original_filename(instance.file.name) if instance.file else None
 
     def create(self, validated_data):
         try:

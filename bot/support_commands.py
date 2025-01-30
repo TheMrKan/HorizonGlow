@@ -26,6 +26,7 @@ async def on_ticket_created_async(ticket: Ticket, product: ProductInfo | None, *
 
     if product:
         message += (f"\n\n{html.bold("Product info:")}\n"
+                    f"{html.bold("File:")} {html.code(product.file_name)}\n"
                     f"{html.bold("Description:")} {product.description}\n"
                     f"{html.bold("Support code:")} {product.support_code}\n"
                     f"{html.bold("Score:")} {product.score}\n"
