@@ -129,7 +129,7 @@ async def __close_ticket_async(db: AsyncSession, ticket: Ticket, user: User | No
 async def send_message_from_user_async(db: AsyncSession, user: User, message: Message):
     ticket = await __get_active_ticket_user_async(db, user)
 
-    await globals.bot.copy_message(config.SUPPORT_GROUP_ID, user.id, message.message_id, message_thread_id=ticket.topic_id)
+    await globals.bot.forward_message(config.SUPPORT_GROUP_ID, user.id, message.message_id, message_thread_id=ticket.topic_id)
 
 
 async def __get_active_ticket_topic_async(db: AsyncSession, topic_id: int) -> Ticket:
