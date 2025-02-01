@@ -6,6 +6,8 @@
 #
 asgiref==3.8.1
     # via django
+cachetools==5.5.1
+    # via google-auth
 certifi==2024.8.30
     # via requests
 charset-normalizer==3.4.0
@@ -28,16 +30,38 @@ djangorestframework==3.15.2
     #   django-rest-knox
 djangorestframework-camel-case==1.4.2
     # via -r requirements.in
+google-auth==2.38.0
+    # via
+    #   google-auth-oauthlib
+    #   gspread
+google-auth-oauthlib==1.2.1
+    # via gspread
+gspread==6.1.4
+    # via -r requirements.in
 gunicorn==21.2.0
     # via -r requirements.in
 idna==3.10
     # via requests
+oauthlib==3.2.2
+    # via requests-oauthlib
 packaging==24.2
     # via gunicorn
 psycopg2==2.9.10
     # via -r requirements.in
+pyasn1==0.6.1
+    # via
+    #   pyasn1-modules
+    #   rsa
+pyasn1-modules==0.4.1
+    # via google-auth
 requests==2.32.3
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   requests-oauthlib
+requests-oauthlib==2.0.0
+    # via google-auth-oauthlib
+rsa==4.9
+    # via google-auth
 sqlparse==0.5.1
     # via django
 tzdata==2024.2

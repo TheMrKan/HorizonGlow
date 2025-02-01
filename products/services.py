@@ -11,6 +11,7 @@ from django.conf import settings
 from django.utils import timezone
 import traceback
 from seller.services import SellerEconomyService, get_or_create_seller
+from analytics.services import GoogleSheetsWriter
 
 
 class ProductBuyer:
@@ -53,6 +54,7 @@ class ProductBuyer:
 
             ProductSupportService(self.product).assign_support_code(commit=False)
             SellerEconomyService(self.seller).on_product_purchased(self.product, commit=False)
+            GoogleSheetsWriter().log_purchase(self.product)
 
             self.product.save()
             self.user.save()
@@ -179,8 +181,10 @@ class ProductFileManager:
         """
         file.name = cls.UPLOAD_PREFIX + file.name
 
-    @staticmethod
-    def get_product_id_from_filename(filename: str) -> int:
+    @classmethod
+    def get_product_id_from_filename(cls, filename: str) -> int:
+        filename = filename.lstrip(cls.UPLOAD_PREFIX)
+
         splitted = filename.split("__", 1)
         if splitted[0].isdigit():
             return int(splitted[0])
@@ -349,7 +353,7 @@ class ProductDeleter:
 class ProductSupportService:
     ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     CODE_LENGTH = 4
-    SUPPORT_PERIOD = timedelta(days=1)
+    SUPPORT_PERIOD = timedelta(days=10)
     """
     Период после покупки товара, в течение которого пользователь может обратиться в поддержку
     """

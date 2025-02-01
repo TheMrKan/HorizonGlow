@@ -8,3 +8,4 @@ whitenoise
 django-filter
 gunicorn
 requests
+gspread

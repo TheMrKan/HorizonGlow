@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'content',
     "news",
     "seller",
+    "analytics"
 ]
 
 MIDDLEWARE = [
@@ -238,3 +239,4 @@ PAYMENT_SERVICE_API_KEY = env.str("PAYMENT_SERVICE_API_KEY")
 PAYMENT_SERVICE_IPN_KEY = env.str("PAYMENT_SERVICE_IPN_KEY")
 PAYMENT_MIN_AMOUNT = env.float("PAYMENT_MIN_AMOUNT")
 HOSTNAME = env.str("DOMAIN_NAME")
+GOOGLE_TABLE_ID = env.str("GOOGLE_TABLE_ID")
