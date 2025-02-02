@@ -14,7 +14,7 @@ import os.path
 class CategoryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     permission_classes = (permissions.IsAuthenticated,)
 
-    queryset = Category.has_available_products.all()
+    queryset = Category.has_available_products.order_by("ordering_value", "id").all()
     serializer_class = CategorySerializer
 
 
