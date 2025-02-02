@@ -43,7 +43,8 @@ class SellerStatsService:
         self.seller = seller
 
     def get_total_on_sale(self):
-        return float(Product.objects.filter(seller_id=self.seller.user_id, purchased_by__isnull=True).aggregate(Sum('price'))["price__sum"])
+        # "or 0" нужен, т. к. если нет товаров на продаже, то .aggregate(Sum('price'))["price__sum"] вернет None
+        return float(Product.objects.filter(seller_id=self.seller.user_id, purchased_by__isnull=True).aggregate(Sum('price'))["price__sum"] or 0)
 
     def get_already_paid(self):
         return float(self.seller.total_earned - self.seller.to_pay)

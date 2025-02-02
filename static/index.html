@@ -69,12 +69,14 @@
                             text: categ.name,
                         }));
 
-                        if (loadedProducts < MIN_PRODUCTS_COUNT) {
-                            loadedProducts += categ["productsCount"];
-                            loadCategory(categ.id, categ.name, categ["descriptionUrl"], true);
-                        }
-                        else {
-                            let el = loadCategory(categ.id, categ.name, categ["descriptionUrl"], false);
+                        if (categ["productsCount"] > 0) {
+                            if (loadedProducts < MIN_PRODUCTS_COUNT) {
+                                loadedProducts += categ["productsCount"];
+                                loadCategory(categ.id, categ.name, categ["descriptionUrl"], true);
+                            }
+                            else {
+                                let el = loadCategory(categ.id, categ.name, categ["descriptionUrl"], false);
+                            }
                         }
                     }
                     categoriesSelector.removeClass("is-skeleton");
@@ -134,8 +136,18 @@
 
             const initialProducts = loadedProducts;
             for (let [id, category] of categories) {
-                if (category["isLoaded"]) {
+                if (category["productsCount"] === 0) {
                     continue;
+                }
+
+                if (category["isLoaded"]) {
+                    let el = $(`#category-${id}`);
+                    if (el.length !== 0) {
+                        if (el.first().css("display") === "none") {
+                            el.show();
+                        }
+                        continue;
+                    }
                 }
 
                 loadedProducts += category["productsCount"];
@@ -146,7 +158,7 @@
                 }
             }
 
-            if (Array.from(categories.values()).every((c) => c["isLoaded"])) {
+            if (Array.from(categories.values()).every((c) => (c["isLoaded"] && $(`#category-${c['id']}`).first().css("display") !== "none") || c["productsCount"] === 0)) {
                 $("#loadMoreButton").hide();
             }
         }
@@ -157,8 +169,15 @@
 
             let elements = $("[id^='category-']");
             if (target === 0) {
-                elements.show();
-                $("#loadMoreButton").toggle(!Array.from(categories.values()).every((c) => c["isLoaded"]));
+                let notLoadedFound = false;
+                for (let [id, category] of categories) {
+                    if (!category["isLoaded"]) {
+                        notLoadedFound = true;
+                    }
+                    console.log(category, !notLoadedFound && category["productsCount"] !== 0);
+                    elements.filter(`#category-${id}`).toggle(!notLoadedFound && category["productsCount"] !== 0);
+                }
+                $("#loadMoreButton").toggle(notLoadedFound);
                 return;
             }
 
