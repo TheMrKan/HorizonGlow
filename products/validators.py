@@ -14,8 +14,8 @@ class DescriptionValidator:
 
 
 class NumberValidator:
-    MAX_LENGTH = 4
-    ALLOWED_CHARACTERS = "0123456789abcdefghijklmnopqrstuvwxyz"
+    MAX_LENGTH = 9
+    ALLOWED_CHARACTERS = "0123456789abcdefghijklmnopqrstuvwxyz "
 
     def __init__(self):
         pass

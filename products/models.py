@@ -39,7 +39,7 @@ class Product(models.Model):
     seller = models.ForeignKey(User, on_delete=models.CASCADE, null=False, related_name='selling_products')
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=False, related_name='products')
     description = models.CharField(max_length=400)
-    number = models.CharField(max_length=8)
+    number = models.CharField(max_length=9)
     score = models.CharField(max_length=2)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     produced_at = models.DateTimeField()
