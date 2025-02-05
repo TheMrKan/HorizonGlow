@@ -46,7 +46,7 @@ input[type=number] {
     --bulma-primary-rgb: rgba(214, 105, 0);
     --bulma-primary-h: 29deg;
     --bulma-primary-s: 100%;
-    --bulma-primary-l: 42%;
+    --bulma-primary-l: 50%;
     --bulma-danger-s: 100%;
     --bulma-danger-l: 35%;
     --bulma-danger: hsl(var(--bulma-danger-h), var(--bulma-danger-s), var(--bulma-danger-l));
@@ -79,7 +79,7 @@ input[type=number] {
 }
 
 .box {
-    --bulma-box-background-color: hsla(0, 0%, 0%, 0.7);
+    --bulma-box-background-color: hsla(0, 0%, 0%, 0.75);
 }
 
 .input {
