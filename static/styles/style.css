@@ -145,6 +145,50 @@ input[type=number] {
     opacity: 1;
 }
 
+
+
+
+.profile-dropdown .dropdown-trigger button {
+    min-width: 4rem;
+    justify-content: flex-start;
+
+}
+
+.profile-dropdown .dropdown-trigger button .icon {
+    transition: opacity 0.3s ease;
+    position: absolute;
+    right: 1rem;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0.1rem;
+}
+
+.profile-dropdown .dropdown-trigger button span {
+    color: white;
+}
+
+.profile-dropdown .dropdown-trigger button span:first-child {
+    margin-right: 1.5rem;
+}
+
+.profile-dropdown .dropdown-trigger button .icon:nth-child(2) {
+    opacity: 1;
+}
+
+.profile-dropdown .dropdown-trigger button .icon:nth-child(3) {
+    opacity: 0;
+    margin-right: 0.08rem;
+}
+
+.profile-dropdown:hover .dropdown-trigger button .icon:nth-child(2) {
+    opacity: 0;
+}
+
+.profile-dropdown:hover .dropdown-trigger button .icon:nth-child(3) {
+    opacity: 1;
+    margin-right: 0.08rem;
+}
+
 .centered-box {
     margin-left: auto;
     margin-right: auto;

@@ -48,15 +48,19 @@ const header = `
         <div class="level-right">
             <div class="level-item">
                 <span class="has-text-weight-bold mr-1 is-skeleton" id="balance">$38,70</span>
-                <span class="icon mr-3">
+                <span class="icon mr-2">
                     <i class="fas fa-wallet" aria-hidden="true"></i>
                 </span>
-                <div class="dropdown is-hoverable is-right">
+                <div class="dropdown is-hoverable is-right profile-dropdown">
                     <div class="dropdown-trigger">
-                        <button class="button" aria-haspopup="true" aria-controls="header-user-dropdown-menu">
-                            <span class="mr-2 is-skeleton" id="username">username</span>
-                            <span class="icon is-small">
-                            <i class="fas fa-user" aria-hidden="true"></i>
+                        <button class="button is-rounded is-text" aria-haspopup="true" aria-controls="header-user-dropdown-menu">
+                            <span class="is-skeleton" id="username">username</span>
+                            <span class="icon">
+                                <i class="fas fa-user" aria-hidden="true"></i>
+                            </span>
+                            <span class="icon">
+                                <i class="fas fa-arrow-down" aria-hidden="true"></i>
+                            </span>
                         </span>
                         </button>
                     </div>
