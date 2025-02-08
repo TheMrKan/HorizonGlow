@@ -69,7 +69,7 @@ const header = `
                             <a href="/purchases" class="dropdown-item purchases-button"><span class="icon"><i class="fas fa-basket-shopping mr-2" aria-hidden="true"></i></span> My purchases </a>
                             <a href="/profile" class="dropdown-item edit-button"><span class="icon"><i class="fas fa-user-pen mr-2" aria-hidden="true"></i></span> Edit profile </a>
                             <a href="/topup" class="dropdown-item topup-button"><span class="icon"><i class="fa-brands fa-bitcoin mr-2" aria-hidden="true"></i></span> Topup balance </a>
-                            <a href="#" class="dropdown-item support-button"><span class="icon"><i class="fas fa-comments mr-2" aria-hidden="true"></i></span> Support </a>
+                            <a href="/support" class="dropdown-item support-button"><span class="icon"><i class="fas fa-comments mr-2" aria-hidden="true"></i></span> Support </a>
                             <hr class="dropdown-divider" />
                             <a href="#" onclick="logout()" class="dropdown-item"><span class="icon"><i class="fas fa-right-from-bracket" aria-hidden="true"></i></span> Logout </a>
                         </div>
