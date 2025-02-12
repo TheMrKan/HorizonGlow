@@ -29,8 +29,8 @@ async def on_ticket_created_async(ticket: Ticket, product: ProductInfo | None, *
                     f"{html.bold("File:")} {html.code(product.file_name)}\n"
                     f"{html.bold("Description:")} {product.description}\n"
                     f"{html.bold("Support code:")} {product.support_code}\n"
-                    f"{html.bold("Score:")} {product.score}\n"
-                    f"{html.bold("Number:")} {product.number}\n"
+                    f"{html.bold("State:")} {product.score}\n"
+                    f"{html.bold("Balance:")} {product.number}\n"
                     f"{html.bold("Price:")} {product.price}$\n"
                     f"{html.bold("Produced at:")} {format_dt(product.produced_at)}\n"
                     f"{html.bold("Purchased at:")} {format_dt(product.purchased_at)}")
