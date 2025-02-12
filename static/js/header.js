@@ -43,7 +43,7 @@ const header = `
             </div>
         </div>
         <div class="level-item header-centered">
-            <span class="title is-4">HORIZON GLOW</span>
+            <span class="title is-4">MIAMI CASH</span>
         </div>
         <div class="level-right">
             <div class="level-item">

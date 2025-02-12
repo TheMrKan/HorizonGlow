@@ -3,12 +3,12 @@ general:
   error: "❌  An internal error has occured"
 
 user_commands:
-  start_message: "Hi, it's Horizon Glow Support Bot."
+  start_message: "Hi, it's Miami Cash Support Bot."
   message_no_ticket: "You should create a ticket to send messages to our Support Team. Use keyboard button on the bottom to create a new ticket."
 
   new_ticket:
     button: "Create ticket"
-    answer: "Send us the Support Code of the product or press the button below if your question is not related to an already bought product.\n\nYou can find the code on Purchases page on https://horizon-glow.com/purchases after the description of the product.\n\nExample: <code>#H07B</code>"
+    answer: "Send us the Support Code of the product or press the button below if your question is not related to an already bought product.\n\nYou can find the code on Purchases page on https://miami-cash.com/purchases after the description of the product.\n\nExample: <code>#H07B</code>"
     no_code: "I don't have a code"
     invalid_code: "Invalid support code. Please, check it and send the correct one.\nIf you don't know what to send, press \"I don't have a code\" below."
     preriod_expired: "Support period of a product is 1 day. Sorry but you can't create a ticket for this product since the period has expired.\n\nYou can create a ticket without code. Click \"Create ticket\" below."
