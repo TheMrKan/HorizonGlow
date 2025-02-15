@@ -4,6 +4,7 @@ general:
 
 user_commands:
   start_message: "Hi, it's Miami Cash Support Bot."
+  start_message_image: "https://miami-cash.com/static/img/bot_start_image.jpg"
   message_no_ticket: "You should create a ticket to send messages to our Support Team. Use keyboard button on the bottom to create a new ticket."
 
   new_ticket:

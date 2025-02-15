@@ -32,6 +32,7 @@ class CloseTicketProtocol(Protocol):
 
 class UserCommandsProtocol(Protocol):
     start_message: str
+    start_message_image: str | None
     message_no_ticket: str
     new_ticket: NewTicketProtocol
     ticket: TicketProtocol

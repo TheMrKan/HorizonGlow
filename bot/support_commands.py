@@ -8,7 +8,7 @@ import datetime
 
 from config import instance as config
 from core import tickets
-from core.models import Ticket
+from core.models import Ticket, User
 from core.api import ProductInfo
 import globals
 

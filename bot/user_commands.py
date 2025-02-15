@@ -1,10 +1,9 @@
 from aiogram import Router, F
 from aiogram.filters import CommandStart, BaseFilter
-from aiogram.types import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton, ErrorEvent
+from aiogram.types import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton, ErrorEvent, URLInputFile
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 import logging
-import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from config import instance as config
@@ -40,7 +39,12 @@ async def error_handler(event: ErrorEvent):
 
 @router.message(ChatTypeFilter("private"), CommandStart())
 async def cmd_start(message: Message, state: FSMContext):
-    await message.answer(config.user_commands.start_message, reply_markup=default_keyboard)
+    if config.user_commands.start_message_image:
+        await globals.bot.send_photo(message.chat.id, URLInputFile(config.user_commands.start_message_image),
+                                     message_thread_id=message.message_thread_id, caption=config.user_commands.start_message)
+    else:
+        await message.answer(config.user_commands.start_message, reply_markup=default_keyboard)
+
     await cmd_new_ticket(message, state)
 
 
