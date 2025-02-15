@@ -353,7 +353,7 @@ class ProductDeleter:
 class ProductSupportService:
     ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     CODE_LENGTH = 4
-    SUPPORT_PERIOD = timedelta(days=10)
+    SUPPORT_PERIOD = timedelta(days=1)
     """
     Период после покупки товара, в течение которого пользователь может обратиться в поддержку
     """
