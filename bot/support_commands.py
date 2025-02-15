@@ -21,6 +21,10 @@ def format_dt(dt: datetime.datetime) -> str:
     return datetime.datetime.strftime(dt, '%m/%d/%Y %H:%M UTC')
 
 
+ticket_start_message_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text=config.support_commands.close_ticket_button, callback_data="close_ticket")]])
+
+
 async def on_ticket_created_async(ticket: Ticket, product: ProductInfo | None, **kwargs):
     message = f"[{ticket.id}] Ticket created"
 
@@ -39,10 +43,25 @@ async def on_ticket_created_async(ticket: Ticket, product: ProductInfo | None, *
 
     message += "\n\nAll messages in this chat will be sent to the ticket creator"
 
-    await globals.bot.send_message(config.SUPPORT_GROUP_ID, message, message_thread_id=ticket.topic_id)
+    await globals.bot.send_message(config.SUPPORT_GROUP_ID, message, message_thread_id=ticket.topic_id, reply_markup=ticket_start_message_keyboard)
 
 
 tickets.emitter.on("created", on_ticket_created_async)
+
+
+class SupportChatFilter(BaseFilter):
+
+    async def __call__(self, obj: Message | CallbackQuery) -> bool:
+        if isinstance(obj, CallbackQuery):
+            obj = obj.message
+
+        return obj.chat.id == config.SUPPORT_GROUP_ID
+
+
+@router.callback_query(SupportChatFilter(),  F.data == "close_ticket")
+async def close_ticket_callback(callback_query: CallbackQuery, session: AsyncSession):
+    await tickets.close_topic_ticket_async(session, callback_query.message.message_thread_id)
+    await callback_query.answer()
 
 
 @router.error()
@@ -52,10 +71,9 @@ async def error_handler(event: ErrorEvent):
         await event.update.message.answer(config.general.error)
 
 
-class SupportChatFilter(BaseFilter):
-
-    async def __call__(self, message: Message) -> bool:
-        return message.chat.id == config.SUPPORT_GROUP_ID
+@router.message(SupportChatFilter(), F.text.casefold() == config.support_commands.close_ticket_button.casefold())
+async def close_ticket(message: Message, session: AsyncSession):
+    await tickets.close_topic_ticket_async(session, message.message_thread_id)
 
 
 @router.message(SupportChatFilter())
@@ -77,5 +95,13 @@ async def on_message(message: Message, session: AsyncSession):
         await tickets.send_message_from_support_async(session, message)
     except tickets.NoTicketError:
         await message.answer(config.support_commands.ticket_is_closed)
+
+
+async def on_message_from_user(user: User, message: Message, ticket: Ticket):
+    await globals.bot.forward_message(config.SUPPORT_GROUP_ID, user.id, message.message_id,
+                                      message_thread_id=ticket.topic_id)
+
+
+tickets.emitter.on("message_from_user", on_message_from_user)
 
 

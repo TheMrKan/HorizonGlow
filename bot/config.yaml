@@ -13,7 +13,7 @@ user_commands:
     invalid_code: "Invalid support code. Please, check it and send the correct one.\nIf you don't know what to send, press \"I don't have a code\" below."
     preriod_expired: "Support period of a product is 1 day. Sorry but you can't create a ticket for this product since the period has expired.\n\nYou can create a ticket without code. Click \"Create ticket\" below."
     already_have: "You already have an active ticket. Please close it before opening a new one."
-    success: "Ticket was successfully created.\nProduct: {product_description}\n\nPlease describe your problem. All messages below will be sent to the support team.\nUse keyboard button on the bottom to close the ticket. Ticket will be automaticly closed after 1 day of inactivity."
+    success: "Ticket was successfully created.\nProduct: {product_description}\n\nPlease describe your problem. All messages below will be sent to the support team.\nUse keyboard button on the bottom to close the ticket."
 
   ticket:
     close_button: "Close ticket"
