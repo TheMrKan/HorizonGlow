@@ -13,12 +13,14 @@ class GeneralProtocol(Protocol):
 
 
 class NewTicketProtocol(Protocol):
-    button: str
-    answer: str
-    no_code: str
+    button_product: str
+    button_custom: str
+    answer_product: str
+    answer_custom: str
     invalid_code: str
     preriod_expired: str
-    success: str
+    success_product: str
+    success_custom: str
     already_have: str
 
 
@@ -33,6 +35,7 @@ class CloseTicketProtocol(Protocol):
 class UserCommandsProtocol(Protocol):
     start_message: str
     start_message_image: str | None
+    instructions_message: str | None
     message_no_ticket: str
     new_ticket: NewTicketProtocol
     ticket: TicketProtocol

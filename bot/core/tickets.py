@@ -26,7 +26,7 @@ class AlreadyHaveTicketError(Exception):
 emitter = EventEmitter()
 
 
-async def create_ticket_async(db: AsyncSession, user: User, support_code: str | None):
+async def create_product_ticket_async(db: AsyncSession, user: User, support_code: str | None):
     if user.ticket:
         raise AlreadyHaveTicketError
 
@@ -41,7 +41,7 @@ async def create_ticket_async(db: AsyncSession, user: User, support_code: str | 
 
     ticket_id = await __get_id_async(db)
 
-    topic = await globals.bot.create_forum_topic(config.SUPPORT_GROUP_ID, f"[{ticket_id}] Ticket: {'No Product' if not product else product.description}", icon_color=9367192)
+    topic = await globals.bot.create_forum_topic(config.SUPPORT_GROUP_ID, f"[{ticket_id}] Product ticket: {'No Product' if not product else product.description}", icon_color=9367192)
 
     try:
         ticket = Ticket(id=ticket_id, topic_id=topic.message_thread_id)
@@ -52,9 +52,34 @@ async def create_ticket_async(db: AsyncSession, user: User, support_code: str | 
         await globals.bot.delete_forum_topic(config.SUPPORT_GROUP_ID, topic.message_thread_id)
         raise
 
-    await emitter.emit_async("created", session=db, ticket=ticket, topic=topic, user=user, product=product)
+    await emitter.emit_async("created_product", session=db, ticket=ticket, topic=topic, user=user, product=product)
 
     return ticket, product
+
+
+async def create_custom_order_ticket_async(db: AsyncSession, user: User, description_message: Message):
+    if user.ticket:
+        raise AlreadyHaveTicketError
+
+    text = description_message.text or description_message.caption
+
+    ticket_id = await __get_id_async(db)
+    topic = await globals.bot.create_forum_topic(config.SUPPORT_GROUP_ID,
+                                                 f"[{ticket_id}] Custom order: {text[:20]}...",
+                                                 icon_color=13338331)
+
+    try:
+        ticket = Ticket(id=ticket_id, topic_id=topic.message_thread_id)
+        db.add(ticket)
+        user.ticket = ticket.id
+        await db.commit()
+    except:
+        await globals.bot.delete_forum_topic(config.SUPPORT_GROUP_ID, topic.message_thread_id)
+        raise
+
+    await emitter.emit_async("created_custom", session=db, ticket=ticket, topic=topic, user=user, description_message=description_message)
+
+    return ticket
 
 
 async def __get_id_async(db: AsyncSession):

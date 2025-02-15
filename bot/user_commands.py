@@ -15,8 +15,9 @@ logger = logging.getLogger(__name__)
 
 router = Router(name="user_commands")
 
-default_keyboard = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text=config.user_commands.new_ticket.button)]], resize_keyboard=True)
-empty_keyboard = ReplyKeyboardMarkup(keyboard=[], resize_keyboard=True)
+default_keyboard = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text=config.user_commands.new_ticket.button_product),
+                                                  KeyboardButton(text=config.user_commands.new_ticket.button_custom)]],
+                                       resize_keyboard=True)
 
 
 class ChatTypeFilter(BaseFilter):
@@ -38,51 +39,56 @@ async def error_handler(event: ErrorEvent):
 
 
 @router.message(ChatTypeFilter("private"), CommandStart())
-async def cmd_start(message: Message, state: FSMContext):
+async def cmd_start(message: Message):
     if config.user_commands.start_message_image:
         await globals.bot.send_photo(message.chat.id, URLInputFile(config.user_commands.start_message_image),
-                                     message_thread_id=message.message_thread_id, caption=config.user_commands.start_message)
+                                     message_thread_id=message.message_thread_id, caption=config.user_commands.start_message,
+                                     reply_markup=default_keyboard)
     else:
         await message.answer(config.user_commands.start_message, reply_markup=default_keyboard)
 
-    await cmd_new_ticket(message, state)
+    if config.user_commands.instructions_message:
+        await message.answer(config.user_commands.instructions_message, reply_markup=default_keyboard)
 
 
-class NewTicketForm(StatesGroup):
+class ProductTicketForm(StatesGroup):
     support_code = State()
 
-new_ticket_keyboard = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text=config.user_commands.new_ticket.no_code)]],
-                                          resize_keyboard=True)
 
-
-@router.message(ChatTypeFilter("private"), F.text.casefold() == config.user_commands.new_ticket.button.casefold())
-async def cmd_new_ticket(message: Message, state: FSMContext):
-    await state.set_state(NewTicketForm.support_code)
-    await message.answer(config.user_commands.new_ticket.answer,
-                         reply_markup=new_ticket_keyboard)
+@router.message(ChatTypeFilter("private"), F.text.casefold() == config.user_commands.new_ticket.button_product.casefold())
+async def cmd_new_product_ticket(message: Message, state: FSMContext):
+    await state.set_state(ProductTicketForm.support_code)
+    await message.answer(config.user_commands.new_ticket.answer_product, reply_markup=ReplyKeyboardRemove())
 
 
 ticket_keyboard = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text=config.user_commands.ticket.close_button)]],
                                       resize_keyboard=True)
 
 
-@router.message(ChatTypeFilter("private"), NewTicketForm.support_code)
-async def cmd_new_ticket_support_code(message: Message, session: AsyncSession, user: User, state: FSMContext):
-    if message.text.casefold() == config.user_commands.new_ticket.no_code.casefold():
-        code = None
-    else:
-        code = message.text.strip("# \n")
-        if len(code) != 4:
-            await message.answer(config.user_commands.new_ticket.invalid_code, reply_markup=new_ticket_keyboard)
-            return
+class CustomOrderTicketForm(StatesGroup):
+    order_description = State()
+
+
+@router.message(ChatTypeFilter("private"), F.text.casefold() == config.user_commands.new_ticket.button_custom.casefold())
+async def cmd_new_product_ticket(message: Message, state: FSMContext):
+    await state.set_state(CustomOrderTicketForm.order_description)
+    await message.answer(config.user_commands.new_ticket.answer_custom, reply_markup=ReplyKeyboardRemove())
+
+
+@router.message(ChatTypeFilter("private"), ProductTicketForm.support_code)
+async def cmd_new_product_ticket_support_code(message: Message, session: AsyncSession, user: User, state: FSMContext):
+    code = message.text.strip("# \n")
+    if len(code) != 4:
+        await message.answer(config.user_commands.new_ticket.invalid_code, reply_markup=default_keyboard)
+        return
 
     try:
-        ticket, product = await tickets.create_ticket_async(session, user, code)
+        ticket, product = await tickets.create_product_ticket_async(session, user, code)
         await state.clear()
-        await message.answer(config.user_commands.new_ticket.success.format(product_description=product.description if product else "No"), reply_markup=ticket_keyboard)
+        await message.answer(config.user_commands.new_ticket.success_product.format(product_description=product.description if product else "No"), reply_markup=ticket_keyboard)
 
     except tickets.InvalidSupportCodeError:
-        await message.answer(config.user_commands.new_ticket.invalid_code, reply_markup=new_ticket_keyboard)
+        await message.answer(config.user_commands.new_ticket.invalid_code, reply_markup=default_keyboard)
 
     except tickets.SupportPeriodExpiredError:
         await state.clear()
@@ -90,7 +96,18 @@ async def cmd_new_ticket_support_code(message: Message, session: AsyncSession, u
 
     except tickets.AlreadyHaveTicketError:
         await state.clear()
-        await message.answer(config.user_commands.new_ticket.already_have, reply_markup=default_keyboard)
+        await message.answer(config.user_commands.new_ticket.already_have, reply_markup=ticket_keyboard)
+
+
+@router.message(ChatTypeFilter("private"), CustomOrderTicketForm.order_description)
+async def cmd_new_custom_ticket_support_code(message: Message, session: AsyncSession, user: User, state: FSMContext):
+    try:
+        ticket = await tickets.create_custom_order_ticket_async(session, user, message)
+        await state.clear()
+        await message.answer(config.user_commands.new_ticket.success_custom, reply_markup=ticket_keyboard)
+    except tickets.AlreadyHaveTicketError:
+        await state.clear()
+        await message.answer(config.user_commands.new_ticket.already_have, reply_markup=ticket_keyboard)
 
 
 @router.message(ChatTypeFilter("private"), F.text.casefold() == config.user_commands.ticket.close_button.casefold())

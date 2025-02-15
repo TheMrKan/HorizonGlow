@@ -25,8 +25,8 @@ ticket_start_message_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text=config.support_commands.close_ticket_button, callback_data="close_ticket")]])
 
 
-async def on_ticket_created_async(ticket: Ticket, product: ProductInfo | None, **kwargs):
-    message = f"[{ticket.id}] Ticket created"
+async def on_product_ticket_created_async(ticket: Ticket, product: ProductInfo | None, **kwargs):
+    message = f"[{ticket.id}] Product ticket created"
 
     if product:
         message += (f"\n\n{html.bold("Product info:")}\n"
@@ -46,7 +46,18 @@ async def on_ticket_created_async(ticket: Ticket, product: ProductInfo | None, *
     await globals.bot.send_message(config.SUPPORT_GROUP_ID, message, message_thread_id=ticket.topic_id, reply_markup=ticket_start_message_keyboard)
 
 
-tickets.emitter.on("created", on_ticket_created_async)
+tickets.emitter.on("created_product", on_product_ticket_created_async)
+
+
+async def on_custom_ticket_created_async(ticket: Ticket, description_message: Message, **kwargs):
+    message = f"[{ticket.id}] Custom order ticket created\n\nAll messages in this chat will be sent to the ticket creator"
+
+    await globals.bot.send_message(config.SUPPORT_GROUP_ID, message, message_thread_id=ticket.topic_id,
+                                   reply_markup=ticket_start_message_keyboard)
+    await globals.bot.forward_message(config.SUPPORT_GROUP_ID, description_message.chat.id, description_message.message_id, message_thread_id=ticket.topic_id)
+
+
+tickets.emitter.on("created_custom", on_custom_ticket_created_async)
 
 
 class SupportChatFilter(BaseFilter):
