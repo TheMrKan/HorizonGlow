@@ -60,6 +60,7 @@
                     categoriesSelector.children().remove("[value!=0]");
 
                     let index = 0;
+                    let hasNotLoaded = false;
                     for (let categ of data) {
                         categories.set(categ.id, categ);
                         categ["isLoaded"] = false;
@@ -76,10 +77,19 @@
                             }
                             else {
                                 let el = loadCategory(categ.id, categ.name, categ["descriptionUrl"], false);
+                                hasNotLoaded = true;
                             }
                         }
                     }
                     categoriesSelector.removeClass("is-skeleton");
+                    if (!hasNotLoaded) {
+                        $("#loadMoreButton").hide();
+                    }
+
+                    if (loadedProducts === 0) {
+                        $("#noProducts").show();
+                        $("#categoriesBag").hide();
+                    }
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     tryHandleAuthError(jqXHR);
@@ -132,7 +142,7 @@
         }
 
         function loadAdditionalCategories() {
-            if (loading.length > 0) return;
+            if (loading.length > 0 || loadedProducts === 0) return;
 
             const initialProducts = loadedProducts;
             for (let [id, category] of categories) {
@@ -164,6 +174,9 @@
         }
 
         function filterCategories(target) {
+            if (loadedProducts === 0) {
+                return;
+            }
             target = Number(target);
             currentFilter = target;
 
@@ -344,8 +357,11 @@
                     </div>
                 </div>
 
-                <div id="categoriesBag">
+                <div id="noProducts" class="box my-2 py-4 has-text-centered" style="display: none;">
+                    <span class="has-text-weight-bold has-text-white-ter" style="font-size: 1.15rem">At the moment, all products on site have been sold. New goods will be available coming soon!</span>
+                </div>
 
+                <div id="categoriesBag">
                     <div id="categoryTemplate">
                         <div>
                             <div class="box mt-5 mb-0 py-2">
