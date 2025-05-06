@@ -16,6 +16,7 @@ services:
       - ./.env.prod
     depends_on:
       - postgres
+    restart: unless-stopped
 
   postgres:
     image: postgres:16-alpine
@@ -27,6 +28,7 @@ services:
       - ./.env.prod
     volumes:
       - pg_data:/var/lib/postgresql/data/
+    restart: unless-stopped
 
   certbot:
     image: certbot/certbot:latest
@@ -42,6 +44,7 @@ services:
       - ./bot/.env
     depends_on:
       - postgres
+    restart: unless-stopped
 
 volumes:
   pg_data:
