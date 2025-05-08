@@ -16,7 +16,8 @@ class GoogleSheetsWriter:
     __table: Spreadsheet
     __worksheet: Worksheet
 
-    HEADER = ["Селлер", "Дата загрузки", "Имя файла", "Категория файла", "Score", "Number", "Цена продажи", "Цена селлера", "Дата продажи", "Покупатель"]
+    HEADER = ["Селлер", "Дата загрузки", "Имя файла", "Категория файла", "Score", "Number", "", "Цена селлера", "Цена продажи",
+              "Покупатель", "Дата продажи"]
 
     # примитивный Singleton
     def __new__(cls, *args, **kwargs):
@@ -62,5 +63,6 @@ class GoogleSheetsWriter:
         purchased = product.purchased_at.strftime("%Y-%m-%d %H:%M:%S")
 
         self.__sheet.append_row([product.seller.username, added, filename, product.category.name,
-                                product.score, product.number, float(product.price), earn, purchased, product.purchased_by.username],
+                                product.score, product.number, "", earn, float(product.price),
+                                product.purchased_by.username, purchased],
                                 value_input_option=gspread.utils.ValueInputOption.user_entered)
