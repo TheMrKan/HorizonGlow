@@ -63,6 +63,7 @@ class GoogleSheetsWriter:
         purchased = product.purchased_at.strftime("%Y-%m-%d %H:%M:%S")
 
         self.__sheet.append_row([product.seller.username, added, filename, product.category.name,
-                                product.score, product.number, "", earn, float(product.price),
+                                product.score, product.number, " ", earn, float(product.price),
                                 product.purchased_by.username, purchased],
-                                value_input_option=gspread.utils.ValueInputOption.user_entered)
+                                value_input_option=gspread.utils.ValueInputOption.user_entered,
+                                table_range="A1")
