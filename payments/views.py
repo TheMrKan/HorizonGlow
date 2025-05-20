@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework import permissions, status
 from utils.exceptions import APIException
-from .services import PaymentServiceInfoProvider, TopupProcessor
+from .services import PaymentServiceInfoProvider, TopupProcessor, CryptoCurrencyAmount, USDAmount
 from .serializers import TopupSerializer, NowpaymentsIPNSerializer
 from payments.nowpayments_api import is_ipn_sig_valid
 from django.conf import settings
@@ -51,7 +51,11 @@ class NowpaymentsIPNView(APIView):
         serializer.is_valid(raise_exception=True)
 
         try:
-            TopupProcessor.update_topup_status(serializer.validated_data["order_id"], serializer.validated_data["payment_status"], float(serializer.validated_data["price_amount"]))
+            TopupProcessor.update_topup_status(serializer.validated_data["order_id"],
+                                               serializer.validated_data["payment_status"],
+                                               CryptoCurrencyAmount(serializer.validated_data["actually_paid"]),
+                                               CryptoCurrencyAmount(serializer.validated_data["pay_amount"]),
+                                               USDAmount(serializer.validated_data["price_amount"]))
         except TopupProcessor.InvalidOrderIdError:
             raise APIException("Invalid order ID", code="invalid_order_id", status=status.HTTP_400_BAD_REQUEST)
 

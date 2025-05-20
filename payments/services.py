@@ -6,6 +6,7 @@ from django.db import transaction
 import traceback
 from utils.urls import get_absolute_url
 import decimal
+from typing import NewType
 
 
 class PaymentServiceInfoProvider:
@@ -13,6 +14,10 @@ class PaymentServiceInfoProvider:
     @classmethod
     def get_min_payment_amount(cls):
         return settings.PAYMENT_MIN_AMOUNT
+
+
+USDAmount = NewType('USDAmount', float)
+CryptoCurrencyAmount = NewType('CryptoCurrencyAmount', float)
 
 
 class TopupProcessor:
@@ -27,7 +32,7 @@ class TopupProcessor:
         pass
 
     @classmethod
-    def request_topup(cls, user: User, amount: float) -> str:
+    def request_topup(cls, user: User, amount: USDAmount) -> str:
         if amount < PaymentServiceInfoProvider.get_min_payment_amount():
             raise cls.InvalidAmountError
 
@@ -48,8 +53,13 @@ class TopupProcessor:
             raise cls.PaymentServiceInteractionError from e
 
     @classmethod
-    def update_topup_status(cls, order_id: str, status: str, amount: float):
-        if status != "finished":
+    def update_topup_status(cls,
+                            order_id: str,
+                            status: str,
+                            actually_paid_in_currency: CryptoCurrencyAmount,
+                            target_amount_in_currency: CryptoCurrencyAmount,
+                            target_amount_in_usd: USDAmount):
+        if status not in ("partially_paid", "finished"):
             return
 
         with transaction.atomic(using="serializeable"):
@@ -58,8 +68,10 @@ class TopupProcessor:
             except User.DoesNotExist:
                 raise cls.InvalidOrderIdError
 
-            user.balance += decimal.Decimal(amount)
+            actually_paid_in_usd: USDAmount = USDAmount(target_amount_in_usd * (actually_paid_in_currency / target_amount_in_currency))
+
+            user.balance += decimal.Decimal(actually_paid_in_usd)
             user.save()
-        print(f"Updated balance of user {user.id}: {amount} (new balance: {user.balance})")
+        print(f"Updated balance of user {user.id}: {actually_paid_in_usd} (new balance: {user.balance})")
 
 

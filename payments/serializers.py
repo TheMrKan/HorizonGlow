@@ -9,5 +9,7 @@ class NowpaymentsIPNSerializer(serializers.Serializer):
     invoice_id = serializers.CharField(write_only=True, allow_null=True)
     payment_status = serializers.CharField(write_only=True)
     price_amount = serializers.FloatField(write_only=True)
+    pay_amount = serializers.FloatField(write_only=True)
+    actually_paid = serializers.FloatField(write_only=True)
     order_id = serializers.CharField(write_only=True, allow_null=True)
 
