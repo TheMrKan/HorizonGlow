@@ -51,12 +51,12 @@ class ScoreValidator:
 
 class PriceValidator:
     MIN_PRICE = 0.1
-    MAX_PRICE = 1000
+    MAX_PRICE = 5000
 
     def __init__(self):
         pass
 
     def __call__(self, value: float):
         if value < self.MIN_PRICE or value > self.MAX_PRICE:
-            raise ValidationError(f"Price is must be between {self.MIN_PRICE}$ and {self.MAX_PRICE}$")
+            raise ValidationError(f"Price must be between {self.MIN_PRICE}$ and {self.MAX_PRICE}$")
         return value
