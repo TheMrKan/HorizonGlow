@@ -71,6 +71,13 @@
             success: function(data) {
                 notify("Payment created. Redirecting...", "success", 3000);
 
+                let linkElement = $("#paymentLink");
+                linkElement.show();
+                linkElement.find("a").attr("href", data["paymentUrl"]);
+                linkElement.find("a").text(data["paymentUrl"]);
+
+                $("#topupButton").prop("disabled", true);
+
                 setTimeout(() =>window.open(data["paymentUrl"], '_blank').focus(), 1000);
             },
             error: function(jqXHR, textStatus, errorThrown) {
@@ -115,6 +122,8 @@
                 and pay in any way convenient for you.
             </div>
         </article>
+
+        <span class="has-text-centered" id="paymentLink" hidden><b>Link: </b><a href=""></a></span>
 
         <button id="topupButton" class="button mt-5 is-outlined is-medium is-fullwidth is-primary">Continue to payment</button>
 
