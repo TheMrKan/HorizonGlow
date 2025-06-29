@@ -33,7 +33,7 @@
 
                     articleElement.find(".article-title").addClass("has-text-white-ter").text(article.title);
                     articleElement.find(".article-date").addClass("has-text-grey-dark").text(toDateUSFull(new Date(article.createdAt)));
-                    articleElement.find(".content").text(article.content);
+                    articleElement.find(".content").html(article.content);
 
                     bag.append(articleElement);
                 }
