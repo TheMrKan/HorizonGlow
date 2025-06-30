@@ -12,7 +12,10 @@ class Category(models.Model):
     name = models.CharField(max_length=50)
     description_url = models.URLField(max_length=200, default='', blank=True)
     ordering_value = models.SmallIntegerField(default=255)
-
+    is_service = models.BooleanField("For services", default=False, help_text="Should products in this category be displayed and processed as services")
+    """
+    Should products in this category be displayed and processed as services
+    """
     objects = models.Manager()
     has_available_products = HasAvailableProductsManager()
 

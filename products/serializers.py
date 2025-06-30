@@ -11,8 +11,8 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ['id', 'name', "description_url", "products_count"]
-        read_only_fields = ['id', 'name', "description_url", "products_count"]
+        fields = ['id', 'name', "description_url", "products_count", "is_service"]
+        read_only_fields = ['id', 'name', "description_url", "products_count", "is_service"]
 
 
 class ProductSerializer(serializers.ModelSerializer):

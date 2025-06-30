@@ -73,10 +73,10 @@
                         if (categ["productsCount"] > 0) {
                             if (loadedProducts < MIN_PRODUCTS_COUNT) {
                                 loadedProducts += categ["productsCount"];
-                                loadCategory(categ.id, categ.name, categ["descriptionUrl"], true);
+                                loadCategory(categ.id, categ.name, categ["descriptionUrl"], categ.isService, true);
                             }
                             else {
-                                let el = loadCategory(categ.id, categ.name, categ["descriptionUrl"], false);
+                                let el = loadCategory(categ.id, categ.name, categ["descriptionUrl"], categ.isService, false);
                                 hasNotLoaded = true;
                             }
                         }
@@ -99,8 +99,11 @@
             });
         }
 
-        function loadCategory(id, name, descriptionUrl, loadProducts) {
+        function loadCategory(id, name, descriptionUrl, isService, loadProducts) {
             const element = getOrCreateCategoryElement(id);    // должно создаваться синхронно, чтобы сохранялся порядок
+            if (isService) {
+                element.find(".balanceHeader, .stateHeader, .dateHeader").hide();
+            }
 
             if (descriptionUrl !== "" && descriptionUrl !== null) {
                 element.find("button").first().show().click(() => window.open(descriptionUrl, '_blank').focus());
@@ -121,7 +124,7 @@
                     categNameElement.text(name);
 
                     for (let product of data) {
-                        addProduct(id, product);
+                        addProduct(id, product, isService);
                     }
 
                     if (loading.length <= 1) {
@@ -223,7 +226,7 @@
             return element;
         }
 
-        function addProduct(categoryId, product) {
+        function addProduct(categoryId, product, isService) {
             const productsBag = $(`#category-${categoryId} .productsBag`);
             let productElement = productsBag.find(`[data-product-id='${product.id}']`);
             if (productElement.length > 0) {
@@ -234,15 +237,20 @@
             productElement.attr("id", null);
             productElement.data("product-id", product.id);
             productElement.find(".cell > span").first().removeClass("is-skeleton").addClass("has-text-grey-light").text(product.description);
-            productElement.find(".productNumber").removeClass("is-skeleton").addClass("has-text-white-ter").text(product.number);
-            productElement.find(".productScore").removeClass("is-skeleton").addClass("has-text-white-ter").text(product.score);
-            productElement.find(".productProducedAtIcon").removeClass("is-skeleton");
+            if (isService) {
+                productElement.find(".productNumber, .productScore, .productProducedAtIcon, .productProducedAt").hide();
+                productElement.find(".productBuyButton").removeClass("is-skeleton").text("ORDER").click(() => orderService(product));
+            }
+            else {
+                productElement.find(".productNumber").removeClass("is-skeleton").addClass("has-text-white-ter").text(product.number);
+                productElement.find(".productScore").removeClass("is-skeleton").addClass("has-text-white-ter").text(product.score);
+                productElement.find(".productProducedAtIcon").removeClass("is-skeleton");
 
-            const date = new Date(product["producedAt"]);
-            const dateString = ('0' + (date.getMonth() + 1)).slice(-2) + '/' + ('0' + date.getDate()).slice(-2);
-            productElement.find(".productProducedAt").removeClass("is-skeleton").addClass("has-text-white-ter").text(dateString);
-            productElement.find(".productBuyButton").removeClass("is-skeleton").text(`Buy ${+Number(product.price).toFixed(2)}$`).click(() => showConfirmation(product));
-
+                const date = new Date(product["producedAt"]);
+                const dateString = ('0' + (date.getMonth() + 1)).slice(-2) + '/' + ('0' + date.getDate()).slice(-2);
+                productElement.find(".productProducedAt").removeClass("is-skeleton").addClass("has-text-white-ter").text(dateString);
+                productElement.find(".productBuyButton").removeClass("is-skeleton").text(`Buy ${+Number(product.price).toFixed(2)}$`).click(() => showConfirmation(product));
+            }
             productsBag.append(productElement);
         }
 
@@ -269,6 +277,13 @@
             $("#confirmationProductPrice").text(`Buy for ${Number(product.price)}$`);
             confirmation.find("button").first().click(() => confirmation.css("display", "none"));
             confirmation.find("button").last().click(() => { confirmation.css("display", "none"); buyProduct(product.id) });
+        }
+
+        function orderService(product) {
+            const modal = $("#serviceOrdering");
+            modal.css("display", "flex");
+
+            modal.find("a").last().click(() => { modal.css("display", "none"); });
         }
 
         function loadArticle() {
@@ -306,6 +321,19 @@
             <button class="button is-outlined is-rounded px-5" style="color: var(--bulma-box-color); border-color: var(--bulma-box-color); width: 8rem;">Cancel</button>
             <button class="button is-primary is-outlined is-rounded px-5" style="width: 8rem;" id="confirmationProductPrice"></button>
         </div>
+    </div>
+</div>
+
+<div id="serviceOrdering" class="custom-modal" style="display: none;">
+    <div class="box has-text-centered">
+        <h6 class="title has-text-centered is-5">Ordering a service</h6>
+        <span>To order the service, use the <b>'Custom order'</b> button in our <a href="https://t.me/miamicashbot">Telegram bot</a>.</span>
+        <a href="https://t.me/miamicashbot" target="_blank" class="button mt-5 is-outlined is-medium is-fullwidth is-primary" style="color: rgb(36, 161, 222); border-color: rgb(36, 161, 222)">
+            Continue to Telegram
+            <span class="icon is-big ml-1 mt-1" style="font-size: 1.5rem;">
+                <i class="fa-brands fa-telegram"></i>
+            </span>
+        </a>
     </div>
 </div>
 
@@ -374,13 +402,13 @@
                                             </button>
                                         </div>
                                         <div class="cell is-align-items-center is-justify-content-center is-flex is-hidden-mobile">
-                                            <span class="has-text-weight-bold has-text-white-ter">Balance</span>
+                                            <span class="balanceHeader has-text-weight-bold has-text-white-ter">Balance</span>
                                         </div>
                                         <div class="cell is-align-items-center is-justify-content-center is-flex is-hidden-mobile">
-                                            <span class="has-text-weight-bold has-text-white-ter">State</span>
+                                            <span class="stateHeader has-text-weight-bold has-text-white-ter">State</span>
                                         </div>
                                         <div class="cell is-align-items-center is-justify-content-center is-flex is-hidden-mobile">
-                                            <span class="has-text-weight-bold has-text-white-ter">Date</span>
+                                            <span class="dateHeader has-text-weight-bold has-text-white-ter">Date</span>
                                         </div>
                                         <div class="cell is-align-items-center is-justify-content-center is-flex is-hidden-mobile">
 
