@@ -326,7 +326,16 @@
 
 <div id="serviceOrdering" class="custom-modal" style="display: none;">
     <div class="box has-text-centered">
-        <h6 class="title has-text-centered is-5">Ordering a service</h6>
+        <div class="level is-mobile">
+      <div style="flex-grow: 1">
+        <h6 class="title is-5">Ordering a service</h6>
+      </div>
+      <div class="level-right">
+        <span class="icon" onclick="$('#serviceOrdering').hide();" style="cursor: pointer;">
+            <i class="fas fa-lg fa-xmark"></i>
+        </span>
+      </div>
+    </div>
         <span>To order the service, use the <b>'Custom order'</b> button in our <a href="https://t.me/miamicashbot">Telegram bot</a>.</span>
         <a href="https://t.me/miamicashbot" target="_blank" class="button mt-5 is-outlined is-medium is-fullwidth is-primary" style="color: rgb(36, 161, 222); border-color: rgb(36, 161, 222)">
             Continue to Telegram
