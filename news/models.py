@@ -10,8 +10,8 @@ class Article(models.Model):
 
     id = models.AutoField(primary_key=True)
     category = models.CharField(choices=ArticleCategory, default=ArticleCategory.DEFAULT, max_length=15)
-    title = models.CharField("Title", max_length=100)
-    content = models.TextField("Content")
+    title = models.CharField("Title", max_length=100, blank=True, default="")
+    content = models.TextField("Content", blank=True, default="")
     created_at = models.DateTimeField("Created at", auto_now_add=True)
 
     def get_image_path(self, filename):

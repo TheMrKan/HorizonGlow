@@ -36,6 +36,7 @@
                     articleElement.attr("id", null);
                     articleElement.find(".is-skeleton").removeClass("is-skeleton");
 
+
                     articleElement.find(".article-title").addClass("has-text-white-ter").text(article.title);
                     articleElement.find(".article-date").addClass("has-text-grey-dark").text(toDateUSFull(new Date(article.createdAt)));
                     articleElement.find(".content").html(article.content);
@@ -89,7 +90,6 @@
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum id justo arcu. Vestibulum
                         ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae;
                         <div class="article-image" style="display: none;">
-                            <br>
                             <img src="" style="max-height: 25rem; cursor: zoom-in;" alt="Article image"/>
                         </div>
                     </div>
