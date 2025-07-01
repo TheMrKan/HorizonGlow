@@ -9,3 +9,5 @@ django-filter
 gunicorn
 requests
 gspread
+pillow
+django-image-uploader-widget

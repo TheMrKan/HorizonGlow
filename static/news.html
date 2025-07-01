@@ -8,6 +8,11 @@
     <script type="text/javascript" src="/static/js/jquery-3.7.1.min.js"></script>
     <script type="text/javascript" src="/static/js/app.js"></script>
     <script type="text/javascript" src="/static/js/header.js"></script>
+
+    <script src="/static/image_viewer/viewer.min.js"></script>
+    <link href="/static/image_viewer/viewer.min.css" rel="stylesheet">
+    <script src="/static/image_viewer/jquery-viewer.min.js"></script>
+
     <title>Miami Cash: News</title>
 </head>
 <body>
@@ -34,6 +39,22 @@
                     articleElement.find(".article-title").addClass("has-text-white-ter").text(article.title);
                     articleElement.find(".article-date").addClass("has-text-grey-dark").text(toDateUSFull(new Date(article.createdAt)));
                     articleElement.find(".content").html(article.content);
+
+                    if (article.hasImage) {
+                        const imageElement = template.find(".article-image").clone();
+                        imageElement.show();
+                        imageElement.find("img").attr("src", `/api/news/${article.id}/image/`)
+                        articleElement.find(".content").append(imageElement);
+
+                        imageElement.viewer({
+                            navbar: false,
+                            title: false,
+                            toolbar: false,
+                            fullscreen: false,
+                            rotatable: false,
+                            tooltip: false
+                        });
+                    }
 
                     bag.append(articleElement);
                 }
@@ -67,6 +88,10 @@
                     <div class="content is-skeleton">
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum id justo arcu. Vestibulum
                         ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae;
+                        <div class="article-image" style="display: none;" >
+                            <br>
+                            <img src="" style="max-height: 25rem; cursor: zoom-in;" alt="Article image"/>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -1,3 +1,4 @@
+import os.path
 from django.db import models
 
 
@@ -6,6 +7,12 @@ class Article(models.Model):
     title = models.CharField("Title", max_length=100)
     content = models.TextField("Content")
     created_at = models.DateTimeField("Created at", auto_now_add=True)
+
+    def get_image_path(self, filename):
+        name, extension = os.path.splitext(filename)
+        return f"article_images/{self.created_at.strftime('%Y%m%d%H%M%S')}{extension}"
+
+    image = models.ImageField("Attached image", upload_to=get_image_path, null=True, default=None, blank=True)
 
     class Meta:
         verbose_name = "Article"

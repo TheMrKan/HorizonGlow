@@ -4,3 +4,4 @@
 /.env.prod
 /bot/.env
 /bot/logs/
+/google_sheets_auth.json
