@@ -13,7 +13,7 @@
     <link href="/static/image_viewer/viewer.min.css" rel="stylesheet">
     <script src="/static/image_viewer/jquery-viewer.min.js"></script>
 
-    <title>Miami Cash: News</title>
+    <title>Miami Cash: Feedback</title>
 </head>
 <body>
 
@@ -25,7 +25,7 @@
 
     function loadNews() {
         $.get({
-            url: "/api/news/?category=default",
+            url: "/api/news/?category=feedback",
             dataType: "json",
             success: function(data) {
                 const bag = $(".pageContent");
@@ -76,7 +76,7 @@
 
             <div class="pageContent">
                 <div class="box py-3 mb-2">
-                    <h5 class="title has-text-centered is-5">NEWS</h5>
+                    <h5 class="title has-text-centered is-5">FEEDBACK</h5>
                 </div>
 
                 <div id="articleTemplate" class="box">
@@ -88,7 +88,7 @@
                     <div class="content is-skeleton">
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum id justo arcu. Vestibulum
                         ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae;
-                        <div class="article-image" style="display: none;" >
+                        <div class="article-image" style="display: none;">
                             <br>
                             <img src="" style="max-height: 25rem; cursor: zoom-in;" alt="Article image"/>
                         </div>

@@ -37,6 +37,7 @@ const header = `
                         <div class="dropdown-content pl-2">
                             <a href="/rules" class="dropdown-item is-size-6"><span class="icon"><i class="fas fa-book mr-2" aria-hidden="true"></i></span> Rules </a>
                             <a href="/news" class="dropdown-item is-size-6"><span class="icon"><i class="fas fa-newspaper mr-2" aria-hidden="true"></i></span> News </a>
+                             <a href="/feedback" class="dropdown-item is-size-6"><span class="icon"><i class="fas fa-comment mr-2" aria-hidden="true"></i></span> Feedback </a>
                         </div>
                     </div>
                 </div>

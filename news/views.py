@@ -12,11 +12,21 @@ class NewsViewSet(ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated, )
     model = Article
     serializer_class = ArticleSerializer
-    queryset = Article.objects.order_by('-created_at').all()[:10]
+
+    def get_queryset(self):
+        if self.action == "image":
+            return Article.objects.all()
+
+        queryset = Article.objects
+
+        category = self.request.query_params.get('category')
+        if category:
+            queryset = queryset.filter(category=str(category))
+
+        return queryset.order_by('-created_at').all()[:10]
 
     @action(detail=True,
-            methods=["GET"],
-            queryset=Article.objects.all())
+            methods=["GET"])
     def image(self, request, pk=None):
         article: Article = self.get_object()
 

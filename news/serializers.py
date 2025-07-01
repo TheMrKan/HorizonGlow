@@ -7,7 +7,7 @@ class ArticleSerializer(ModelSerializer):
 
     class Meta:
         model = Article
-        fields = ("id", "title", "content", "created_at", "has_image")
+        fields = ("id", "title", "category", "content", "created_at", "has_image")
 
     def get_has_image(self, instance: Article):
         return bool(instance.image) and instance.image.storage.exists(instance.image.name)

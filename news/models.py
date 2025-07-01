@@ -3,7 +3,13 @@ from django.db import models
 
 
 class Article(models.Model):
+
+    class ArticleCategory(models.TextChoices):
+        DEFAULT = 'default'
+        FEEDBACK = 'feedback'
+
     id = models.AutoField(primary_key=True)
+    category = models.CharField(choices=ArticleCategory, default=ArticleCategory.DEFAULT, max_length=15)
     title = models.CharField("Title", max_length=100)
     content = models.TextField("Content")
     created_at = models.DateTimeField("Created at", auto_now_add=True)
