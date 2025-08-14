@@ -3,6 +3,7 @@ bestconfig
 pydantic
 httpx
 sqlalchemy
+sqlalchemy-utils
 asyncpg
 pymitter
 

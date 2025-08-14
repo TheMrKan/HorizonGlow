@@ -2,6 +2,7 @@ import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy_utils import database_exists, create_database
 
 from config import instance as config
 
@@ -27,6 +28,13 @@ async def main():
     db_engine = create_async_engine(config.DATABASE_URL, echo=False)
     sessionmaker = async_sessionmaker(db_engine, expire_on_commit=False)
 
+    # database_exists и create_database не поддерживают асинхронность
+    sync_url = config.DATABASE_URL.replace(
+        "postgresql+asyncpg://", "postgresql+psycopg2://"
+    )
+    if not database_exists(sync_url):
+        create_database(sync_url)
+
     bot = Bot(config.BOT_TOKEN, default=DefaultBotProperties(parse_mode='HTML'))
     globals.bot = bot
 
@@ -46,6 +54,10 @@ async def main():
 
     logger.info("Setup completed. Polling...")
     await dp.start_polling(bot)
+
+
+async def __create_db_if_not_exists(session):
+    pass
 
 
 if __name__ == '__main__':
